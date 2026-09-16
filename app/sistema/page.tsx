@@ -1,0 +1,1 @@
+import {getUser} from '../auth';import {redirect} from 'next/navigation';import Library from '../library';export const dynamic='force-dynamic';export default async function Page(){const user=await getUser();if(!user)redirect('/');return <Library role={user.role} username={user.username}/>}
