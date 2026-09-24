@@ -119,6 +119,7 @@ body {
 .start-card a:hover{text-decoration:underline}
 .workspace-start .app-footer{flex:none;margin:0 30px;padding:14px 0}
 .nav-with-info{display:flex;align-items:center;gap:8px;min-width:0;margin:auto}
+.brand-name{display:block;color:inherit}
 .nav-with-info .main-nav{flex:none}
 .topbar-actions{display:flex;align-items:center;gap:22px;margin-left:auto}
 .info-button{display:grid;place-items:center;width:36px;height:36px;border:1px solid #cbd5df;border-radius:50%;color:#165880;background:white;flex:none}
