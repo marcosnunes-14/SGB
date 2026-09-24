@@ -139,3 +139,25 @@ body {
 .info-dialog-body .credits{grid-template-columns:repeat(2,minmax(0,1fr))}
 @media(max-width:1200px){.nav-with-info{order:4;width:100%;margin:0;overflow-x:auto}.nav-with-info .main-nav{order:0;width:max-content!important;overflow:visible}.app-shell-start .topbar{height:auto;min-height:80px;padding:12px 18px}.topbar-actions{order:0;margin-left:auto}}
 @media(max-width:600px){.topbar-actions{gap:8px}.topbar .library-name{max-width:125px}.topbar .brand{gap:6px}.topbar .header-logo{width:62px}.topbar .header-logo img{width:95px;top:-29px;left:-10px}.topbar .current-profile{display:none}.topbar .logout{gap:4px}.start-logo{width:min(90vw,540px);height:min(250px,35dvh)}.start-card p{font-size:14px}.workspace-start .app-footer{margin:0 18px}.info-dialog-header{padding:36px 20px 24px}.info-dialog-body{padding:22px 18px}.info-dialog-body .credits{grid-template-columns:1fr}}
+
+/* Relatórios e ranking seguem o padrão do painel administrativo. */
+.report-heading-icon{color:#165880;flex:none}
+.report-filters{margin-bottom:20px}
+.report-date-fields{display:flex;flex-wrap:wrap;gap:16px;padding:0 21px 22px}
+.report-date-fields label{display:grid;gap:8px;min-width:180px;font-size:14px;font-weight:600;color:#425569}
+.report-date-fields input{height:40px;background:#fff;border-color:#cbd4de;color:#263748}
+.report-validation{padding:0 21px 20px;color:#ad4b38;font-size:14px}
+.report-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+.report-table td{vertical-align:top}
+.rank-position{font-weight:700;color:#165880;font-size:17px}
+.report-details summary{color:#165880;font-weight:600;white-space:nowrap}
+.report-details ul{margin:12px 0 0;padding:0;list-style:none;min-width:250px;max-width:420px;white-space:normal}
+.report-details li{padding:9px 0;border-top:1px solid #e4e9ee;line-height:1.5}
+.report-details li strong{display:block}
+.report-details li span{font-size:12px;color:#627384}
+.ranking-periods{display:flex;flex-wrap:wrap;gap:8px;padding:0 21px 22px}
+.ranking-periods button{padding:9px 14px;background:white;border:1px solid #cbd4de;border-radius:4px;color:#405569;font-size:14px}
+.ranking-periods button:hover{background:#edf3f9}
+.ranking-periods button.selected{background:#165880;border-color:#165880;color:white}
+@media(max-width:1450px){.topbar{height:auto;flex-wrap:wrap;padding-top:12px}.nav-with-info{order:4;width:100%;margin:0;overflow-x:auto}.nav-with-info .main-nav{order:0;flex:none;width:max-content!important;height:58px!important;overflow:visible}.nav-with-info .main-nav [data-slot=tabs-trigger]{height:58px;flex:0 0 auto}}
+@media(max-width:650px){.report-stats{grid-template-columns:1fr}.report-date-fields label{flex:1 1 100%}.report-heading-icon{display:none}}
