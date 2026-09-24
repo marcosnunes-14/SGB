@@ -4,8 +4,7 @@ import hostingConfig from "./.openai/hosting.json";
 import { readExecutionProfile } from "./scripts/execution-profile.mjs";
 import { sites } from "./build/sites-vite-plugin";
 
-const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
-  "29696181-91a9-4521-a60a-6d51950ff9d3";
+const SGB_DATABASE_ID = "501e257e-e6fe-4720-b326-b36cd015a239";
 
 const { d1, r2 } = hostingConfig;
 
@@ -21,7 +20,7 @@ const localBindingConfig = {
         {
           binding: d1,
           database_name: "sgb-db",
-          database_id: SITE_CREATOR_PLACEHOLDER_DATABASE_ID,
+          database_id: SGB_DATABASE_ID,
         },
       ]
     : [],

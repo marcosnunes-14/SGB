@@ -5,8 +5,7 @@
       "binding": "DB",
       "database_name": "sgb-db",
       "database_id": "501e257e-e6fe-4720-b326-b36cd015a239",
-      "migrations_dir": "drizzle",
-      "migrations_pattern": "drizzle/*.sql"
+      "migrations_dir": "drizzle"
     }
   ]
 }
