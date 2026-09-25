@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {borrowersFor, loansInPeriod, rankingStart} from './loan-report.ts';
+import {borrowersFor, loansInPeriod, validReportPeriod} from './loan-report.ts';
 
 const loans = [
   {id: '1', student: '  Ana  Silva ', grade: '2º A', title: 'A', code: '1', delivery: '2026-09-01', status: 'Devolvido'},
@@ -19,9 +19,9 @@ test('agrupa nomes normalizados por série e ordena por quantidade', () => {
   assert.deepEqual(people.map(p => [p.grade, p.loans.length]), [['2º A', 2], ['3º B', 1]]);
 });
 
-test('semana começa segunda-feira, inclusive na troca de mês ou ano', () => {
-  assert.equal(rankingStart('week', new Date(2026, 8, 1)), '2026-08-31');
-  assert.equal(rankingStart('week', new Date(2027, 0, 3)), '2026-12-28');
-  assert.equal(rankingStart('month', new Date(2026, 8, 24)), '2026-09-01');
-  assert.equal(rankingStart('year', new Date(2026, 8, 24)), '2026-01-01');
+test('valida o intervalo antes de gerar ou consultar o relatório', () => {
+  assert.equal(validReportPeriod('2026-09-01', '2026-09-25'), true);
+  assert.equal(validReportPeriod('2026-09-25', '2026-09-01'), false);
+  assert.equal(validReportPeriod('2026-02-30', '2026-03-01'), false);
+  assert.equal(validReportPeriod('', '2026-03-01'), false);
 });

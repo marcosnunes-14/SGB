@@ -40,16 +40,11 @@ export function borrowersFor(loans: ReportLoan[]): Borrower[] {
     b.lastDelivery.localeCompare(a.lastDelivery) || a.name.localeCompare(b.name, 'pt-BR'));
 }
 
-export type RankingPeriod = 'week' | 'month' | 'year' | 'all';
-
-export function rankingStart(period: RankingPeriod, today: Date) {
-  const year = today.getFullYear();
-  const month = today.getMonth();
-  if (period === 'all') return '0000-01-01';
-  const start = period === 'year' ? new Date(year, 0, 1) :
-    period === 'month' ? new Date(year, month, 1) :
-    new Date(year, month, today.getDate() - (today.getDay() + 6) % 7);
-  return localDate(start);
+export function validReportPeriod(start: string, end: string) {
+  const isDate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) &&
+    !Number.isNaN(Date.parse(`${value}T12:00:00Z`)) &&
+    new Date(`${value}T12:00:00Z`).toISOString().slice(0, 10) === value;
+  return isDate(start) && isDate(end) && start <= end;
 }
 
 export function localDate(day: Date) {

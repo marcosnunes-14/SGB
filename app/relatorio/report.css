@@ -1,0 +1,30 @@
+.reader-report{min-height:100dvh;background:#fff;color:#152b49;font-family:Arial,Helvetica,sans-serif}
+.reader-report-hero{height:190px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;text-align:center;background:linear-gradient(90deg,#061a32de,#0c3974cc 51%,#061c3ede),url('/sgb-info-books.jpg') center/cover no-repeat}
+.reader-report-hero h1{font-size:clamp(34px,5vw,70px);line-height:1.1;font-weight:800;letter-spacing:.02em}
+.reader-report-hero p{display:flex;align-items:center;gap:13px;margin-top:9px;font-size:22px;font-weight:600;letter-spacing:1px}
+.reader-report-hero p span{width:35px;height:2px;background:#a9cef6}
+.reader-report-content{width:min(1580px,calc(100% - 72px));margin:0 auto;padding:24px 0 50px}
+.reader-report-summary{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:22px}
+.reader-report-period{display:flex;align-items:center;gap:11px}
+.reader-report-calendar{width:55px;height:55px;display:grid;place-items:center;background:#eaf3ff;border-radius:10px;color:#124780}
+.reader-report-period strong,.reader-report-period small{display:block}
+.reader-report-period strong{font-size:16px}
+.reader-report-period small{margin-top:6px;font-size:14px;color:#687e98}
+.reader-report-count{display:flex;align-items:center;gap:8px;padding:11px 16px;background:#eaf3ff;border-radius:10px;font-size:14px;font-weight:700;white-space:nowrap;color:#1d3f6b}
+.reader-report-list{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.reader-report-list li{display:flex;align-items:center;gap:18px;min-height:74px;padding:9px 18px;border:1px solid #d9e5f3;border-radius:10px;box-shadow:0 2px 9px #1c53920a}
+.reader-report-list li.reader-report-first{background:#f1f7ff;border-color:#c9dff9}
+.reader-report-rank{width:74px;flex:none;font-size:17px;font-weight:700;text-align:left;padding-left:14px;color:#172b49}
+.reader-report-rank-1,.reader-report-rank-2,.reader-report-rank-3{display:grid;place-items:center;width:44px;height:44px;margin:0 15px;border-radius:50%;padding:0;color:white;font-size:18px;box-shadow:0 3px 7px #17304b2e}
+.reader-report-rank-1{background:linear-gradient(135deg,#efc25e,#c9870d)}
+.reader-report-rank-2{background:linear-gradient(135deg,#bdcbd9,#7e91a7)}
+.reader-report-rank-3{background:linear-gradient(135deg,#efa964,#b55918)}
+.reader-report-avatar{width:50px;height:50px;flex:none;display:grid;place-items:center;border-radius:50%;background:#dcecff;color:#194c83;font-weight:700;font-size:16px}
+.reader-report-list li>strong{font-size:17px;font-weight:700;min-width:0;overflow-wrap:anywhere}
+.reader-report-books{display:flex;align-items:center;justify-content:center;gap:9px;margin-left:auto;min-width:112px;padding:10px 13px;border-radius:9px;background:#e9f3ff;color:#174678;font-weight:700;font-size:14px;white-space:nowrap}
+.reader-report-empty{border:1px solid #d9e5f3;border-radius:10px;padding:50px 20px;text-align:center;color:#586e88}
+.reader-report-error{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px;text-align:center;padding:20px}
+.reader-report-error h1{font-size:30px}
+.reader-report-error p{color:#586e88}
+.reader-report-error a{color:#165880;text-decoration:underline}
+@media(max-width:600px){.reader-report-hero{height:145px}.reader-report-hero p{font-size:16px}.reader-report-content{width:calc(100% - 28px);padding-top:20px}.reader-report-summary{align-items:flex-start;flex-direction:column}.reader-report-list li{gap:9px;padding:9px;min-height:66px}.reader-report-rank{width:30px;padding-left:2px;font-size:14px}.reader-report-rank-1,.reader-report-rank-2,.reader-report-rank-3{width:30px;height:30px;margin:0;font-size:13px}.reader-report-avatar{width:36px;height:36px;font-size:12px}.reader-report-list li>strong{font-size:13px}.reader-report-books{gap:5px;min-width:74px;padding:8px 6px;font-size:11px}.reader-report-books svg{width:15px}}
