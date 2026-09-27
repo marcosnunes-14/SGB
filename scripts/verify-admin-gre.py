@@ -28,7 +28,7 @@ counts = {table: db.execute(f'SELECT COUNT(*) FROM {table}').fetchone()[0]
 leila_books = db.execute('SELECT COUNT(*) FROM books WHERE owner=?', (leila[1],)).fetchone()[0]
 columns = {row[1] for row in db.execute('PRAGMA table_info(institutions)')}
 if 'gre' in columns:
-    print('A coluna GRE já existe no backup; nenhuma migração pendente foi simulada.')
+    print('A coluna GRE já existe no backup; nenhuma migração foi simulada.')
 else:
     db.executescript(Path('drizzle/0004_magical_redwing.sql').read_text(encoding='utf-8'))
     assert db.execute('SELECT gre FROM institutions WHERE id=?', (leila[1],)).fetchone() == (None,)
@@ -38,5 +38,5 @@ after = {table: db.execute(f'SELECT COUNT(*) FROM {table}').fetchone()[0]
 assert counts == after, (counts, after)
 assert db.execute('SELECT COUNT(*) FROM books WHERE owner=?', (leila[1],)).fetchone()[0] == leila_books
 assert db.execute("SELECT id,owner,hash FROM users WHERE username='leila'").fetchone() == leila
-print('Backup íntegro; migração GRE simulada sem alterar livros, empréstimos, usuários ou sessões.')
+print('Backup íntegro; livros, empréstimos, usuários e sessões preservados.')
 print(f'Livros da leila: {leila_books}. Contagens antes/depois: {counts}')
