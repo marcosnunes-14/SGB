@@ -25,7 +25,7 @@ export default function ExtraMenu({books,loans,loading,onReports,onLoans}:Props)
   const exportCsv=(name:string,rows:Row[],fields:string[])=>download(`sgb-${name}.csv`,csv(rows,fields),'text/csv;charset=utf-8');
   const students=Array.from(new Map(loans.filter(l=>l.student).map(l=>[l.student.toLocaleLowerCase('pt-BR').trim(),{id:l.id,student:l.student,grade:l.grade}])).values());
   return <div className="extra-menu" ref={root} onMouseEnter={()=>setOpen(true)} onMouseLeave={()=>{setOpen(false);setSection('')}}>
-    <button type="button" className="extra-menu-trigger" aria-label="Menu de Funções Extras" title="Funções extras" aria-expanded={open} aria-haspopup="menu" onClick={()=>setOpen(v=>!v)}><Menu size={22}/></button>
+    <button type="button" className="extra-menu-trigger" aria-label="Menu de Funções Extras" title="Funções extras" aria-expanded={open} aria-haspopup="menu" onClick={()=>setOpen(true)}><Menu size={22}/></button>
     {open&&<div className="extra-menu-list" role="menu" aria-label="Funções extras">
       {['Relatórios','Histórico','Exportações','Dados e Backup','Atividade do Sistema','Configurações'].map(label=><div className="extra-menu-group" key={label} onMouseEnter={()=>setSection(label)} onFocus={()=>setSection(label)}>
         <button type="button" className={'extra-menu-item extra-menu-parent'+(section===label?' active':'')} aria-expanded={section===label} onClick={()=>setSection(section===label?'':label)}>{label}<ChevronRight size={15}/></button>
