@@ -5,9 +5,18 @@ import {SGB_VERSION} from '../../version';
 
 export const dynamic='force-dynamic';
 const noStore={'Cache-Control':'no-store'};
-const schoolFields=['name','library_name','cnpj','city','state','cep','address','address_number','district','phone','email','contact_name','contact_role','contact_phone','contact_email','logo_url','activated_at','status','notes','license_plan','license_status','license_start','license_end','license_notes'] as const;
+const schoolFields=['name','library_name','city','state','contact_name','contact_phone','contact_email','status','license_start','license_end'] as const;
 const required=(v:unknown,label:string,max=150)=>{if(typeof v!=='string'||!v.trim()||v.length>max)throw Error(`Informe ${label}.`);return v.trim()};
 const optional=(v:unknown,max=1000)=>{if(v==null)return '';if(typeof v!=='string'||v.length>max)throw Error('Campo inválido.');return v.trim()};
+function schoolInput(input:Record<string,unknown>){
+ const gre=Number(input.gre);if(typeof input.gre!=='string'||!/^([1-9]|1\d|2[01])$/.test(input.gre))throw Error('Selecione uma GRE de 01 a 21.');
+ const status=required(input.status,'o status',20);if(!['ativa','inativa','suspensa'].includes(status))throw Error('Status inválido.');
+ const start=required(input.license_start,'o início da licença',10),end=required(input.license_end,'o vencimento da licença',10);
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||!/^\d{4}-\d{2}-\d{2}$/.test(end)||end<start)throw Error('Confira as datas da licença.');
+ const fields:Record<(typeof schoolFields)[number],string>={name:required(input.name,'o nome da escola'),library_name:required(input.library_name,'o nome da biblioteca'),city:required(input.city,'a cidade'),state:required(input.state,'o estado',50),contact_name:required(input.contact_name,'o nome do responsável'),contact_phone:optional(input.contact_phone,50),contact_email:optional(input.contact_email,200),status,license_start:start,license_end:end};
+ if(fields.contact_email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.contact_email))throw Error('E-mail inválido.');
+ return {gre,values:schoolFields.map(field=>fields[field])};
+}
 function apiError(e:unknown){const message=e instanceof Error?e.message:'';if(/UNIQUE|constraint/i.test(message))return Response.json({error:'Já existe uma escola com esse código ou um usuário com esse login.'},{status:409,headers:noStore});console.error('Admin error',e);return Response.json({error:message||'Não foi possível concluir a operação.'},{status:400,headers:noStore})}
 
 export async function GET(){
@@ -35,18 +44,15 @@ export async function POST(req:Request){
  try{
   const input=await req.json() as Record<string,unknown>;const action=input.action;const db=database();
   if(action==='create-school'){
-   const name=required(input.name,'o nome da escola');const id=crypto.randomUUID();const status=optional(input.status,20)||'ativa';if(!['ativa','suspensa','inativa'].includes(status))throw Error('Status inválido.');
-   const values=schoolFields.map(key=>key==='name'?name:key==='status'?status:key==='license_plan'?optional(input[key],200)||'Educacional':key==='license_status'?optional(input[key],200)||'Ativa':optional(input[key],key==='notes'?1000:200));
-   const givenCode=optional(input.code,40).toUpperCase();if(givenCode&&!/^[A-Z0-9-]{3,40}$/.test(givenCode))throw Error('Código da escola inválido.');
-   const code=givenCode||(await db.prepare("SELECT printf('SGB-%04d',COALESCE(MAX(CAST(substr(code,5) AS INTEGER)),0)+1) AS code FROM institutions WHERE code GLOB 'SGB-[0-9]*'").first<{code:string}>())?.code||'SGB-0001';
-   await db.batch([db.prepare(`INSERT INTO institutions(id,code,${schoolFields.join(',')}) VALUES(${Array(schoolFields.length+2).fill('?').join(',')})`).bind(id,code,...values),db.prepare('INSERT INTO audit_logs(id,institution_id,user_id,action,details) VALUES(?,?,?,?,?)').bind(crypto.randomUUID(),id,user.id,'escola_criada',name)]);
+   const {gre,values}=schoolInput(input),name=values[0],id=crypto.randomUUID();
+   const code=(await db.prepare("SELECT printf('SGB-%04d',COALESCE(MAX(CAST(substr(code,5) AS INTEGER)),0)+1) AS code FROM institutions WHERE code GLOB 'SGB-[0-9]*'").first<{code:string}>())?.code||'SGB-0001';
+   await db.batch([db.prepare(`INSERT INTO institutions(id,code,gre,${schoolFields.join(',')}) VALUES(${Array(schoolFields.length+3).fill('?').join(',')})`).bind(id,code,gre,...values),db.prepare('INSERT INTO audit_logs(id,institution_id,user_id,action,details) VALUES(?,?,?,?,?)').bind(crypto.randomUUID(),id,user.id,'escola_criada',name)]);
    return Response.json({ok:true,id,code},{headers:noStore});
   }
   if(action==='update-school'){
    const id=required(input.id,'a escola',80);const exists=await db.prepare('SELECT id FROM institutions WHERE id=?').bind(id).first();if(!exists)return Response.json({error:'Escola não encontrada.'},{status:404});
-   const status=optional(input.status,20)||'ativa';if(!['ativa','suspensa','inativa'].includes(status))throw Error('Status inválido.');
-   const values=schoolFields.map(key=>key==='name'?required(input.name,'o nome da escola'):key==='status'?status:optional(input[key],key==='notes'?1000:200));
-   await db.batch([db.prepare(`UPDATE institutions SET ${schoolFields.map(key=>`${key}=?`).join(',')},updated_at=CURRENT_TIMESTAMP WHERE id=?`).bind(...values,id),db.prepare('INSERT INTO audit_logs(id,institution_id,user_id,action) VALUES(?,?,?,?)').bind(crypto.randomUUID(),id,user.id,'escola_alterada')]);
+   const {gre,values}=schoolInput(input);
+   await db.batch([db.prepare(`UPDATE institutions SET gre=?,${schoolFields.map(key=>`${key}=?`).join(',')},updated_at=CURRENT_TIMESTAMP WHERE id=?`).bind(gre,...values,id),db.prepare('INSERT INTO audit_logs(id,institution_id,user_id,action) VALUES(?,?,?,?)').bind(crypto.randomUUID(),id,user.id,'escola_alterada')]);
    return Response.json({ok:true},{headers:noStore});
   }
   if(action==='create-user'){
