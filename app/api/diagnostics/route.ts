@@ -1,5 +1,6 @@
 import {getUser} from '../../auth';
 import {database} from '@/db/raw';
+import {SGB_VERSION} from '../../version';
 export const dynamic='force-dynamic';
 export async function GET(){
  const started=performance.now();
@@ -15,6 +16,6 @@ export async function GET(){
    db.prepare('SELECT COUNT(*) AS total FROM users WHERE owner=?').bind(user.userId).first(),
    db.prepare('SELECT COUNT(*) AS total FROM sessions s JOIN users u ON u.id=s.user_id WHERE u.owner=? AND CAST(s.expires AS INTEGER)>?').bind(user.userId,Date.now()).first()
   ]);
-  return Response.json({status:ping?'ok':'error',checkedAt:new Date().toISOString(),databaseMs,serverMs:Math.round((performance.now()-started)*10)/10,version:'1.0.0',books,loans,users,sessions},{headers:{'Cache-Control':'no-store'}});
+  return Response.json({status:ping?'ok':'error',checkedAt:new Date().toISOString(),databaseMs,serverMs:Math.round((performance.now()-started)*10)/10,version:SGB_VERSION,books,loans,users,sessions},{headers:{'Cache-Control':'no-store'}});
  }catch(e){console.error('Diagnostics failed',e);return Response.json({error:'A verificação falhou. A API ou o banco pode estar indisponível.'},{status:503,headers:{'Cache-Control':'no-store'}})}
 }

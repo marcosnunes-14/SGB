@@ -2,6 +2,7 @@
 
 import {Star, UserRound, UsersRound} from 'lucide-react';
 import {Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle} from '@/components/ui/dialog';
+import {SGB_VERSION} from './version';
 
 const team = [
   {name: 'Marcos Emanuel', role: 'Desenvolvedor', initials: 'ME'},
@@ -36,7 +37,7 @@ export default function InfoDialog({open, onOpenChange}: {open: boolean; onOpenC
           <ul className="info-thanks-list">{thanks.map(name => <li key={name}><UserRound aria-hidden="true" size={18}/>{name}</li>)}</ul>
         </section>
       </div>
-      <div className="info-dialog-footer">SGB · Versão 1.0.0</div>
+      <div className="info-dialog-footer">SGB · Versão {SGB_VERSION}</div>
     </DialogContent>
   </Dialog>;
 }
