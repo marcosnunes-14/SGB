@@ -21,6 +21,7 @@ function initials(name: string) {
 export default async function ReportPage({searchParams}: {searchParams: Promise<{inicio?: string; fim?: string}>}) {
   const user = await getUser();
   if (!user) redirect('/');
+  if (!user.institutionId) redirect('/admin');
   const {inicio, fim} = await searchParams;
   const start = inicio || '', end = fim || '';
   if (!validReportPeriod(start, end)) {

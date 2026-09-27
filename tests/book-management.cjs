@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict');const fs=require('node:fs');const ts=require('typescript');const {spawnSync}=require('node:child_process');
 const output=ts.transpileModule(fs.readFileSync('app/book-rules.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;const rules={};new Function('exports',output)(rules);
-assert.equal(rules.canClone('bibliotecario'),false);assert.equal(rules.canClone('desenvolvedor'),true);assert.equal(rules.canClone('unknown'),false);
+assert.equal(rules.canClone('bibliotecario'),true);assert.equal(rules.canClone('desenvolvedor'),true);assert.equal(rules.canClone('direcao'),false);assert.equal(rules.canClone('unknown'),false);
 const valid={registration:' 001 ',copies:'1',title:'Livro',authors:'Autor',rack:'1',shelf:'5'};assert.equal(rules.normalizeBook(valid).registration,'001');assert.throws(()=>rules.normalizeBook({...valid,shelf:'6'}));
 const script=`import json,sqlite3,sys,pathlib
 rules=json.loads(sys.stdin.read()); db=sqlite3.connect(':memory:')

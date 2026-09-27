@@ -1,4 +1,4 @@
-export function canClone(role:string){return role==='desenvolvedor'}
+export function canClone(role:string){return role==='desenvolvedor'||role==='bibliotecario'}
 export function normalizeBook(data:Record<string,string>){
  const fields=['registration','copies','type','cdd','authors','title','local','publisher','year','pages','rack','shelf'];
  const book:Record<string,string>={};
