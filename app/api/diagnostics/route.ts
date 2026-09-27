@@ -7,7 +7,7 @@ export async function GET(){
  try{
   const user=await getUser();
   if(!user)return Response.json({error:'Entre novamente para continuar.'},{status:401});
-  if(user.role!=='desenvolvedor')return Response.json({error:'Acesso exclusivo do desenvolvedor.'},{status:403});
+  if(user.role!=='desenvolvedor'||!user.supportMode)return Response.json({error:'Acesso exclusivo do suporte do desenvolvedor.'},{status:403});
   const queryStart=performance.now();const db=database();
   const ping=await db.prepare('SELECT 1 AS ok').first();const databaseMs=Math.round((performance.now()-queryStart)*10)/10;
   const [books,loans,users,sessions]=await Promise.all([
