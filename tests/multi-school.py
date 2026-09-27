@@ -20,14 +20,17 @@ db.execute('INSERT INTO sessions(token_hash,user_id,expires) VALUES(?,?,?)', ('h
 before = {name: db.execute(f'SELECT * FROM {name} ORDER BY rowid').fetchall() for name in ('books','loans')}
 credentials = db.execute("SELECT salt,hash,owner FROM users WHERE username='leila'").fetchone()
 db.executescript(Path('drizzle/0003_multi_school.sql').read_text())
+db.executescript(Path('drizzle/0004_magical_redwing.sql').read_text())
 assert {name: db.execute(f'SELECT * FROM {name} ORDER BY rowid').fetchall() for name in ('books','loans')} == before
 assert len(db.execute('SELECT id FROM books').fetchall()) == 1600
 assert db.execute("SELECT salt,hash,owner FROM users WHERE username='leila'").fetchone() == credentials
 assert db.execute('SELECT id,name,code FROM institutions').fetchone() == (owner,'CETI Demerval Lobão','SGB-0001')
+assert db.execute('SELECT gre FROM institutions WHERE id=?',(owner,)).fetchone() == (None,)
 assert db.execute('SELECT user_id,token_hash FROM sessions').fetchone() == ('administrator','hash-sessao')
 
 # Escola nova no mesmo banco, com a chave owner impedindo a leitura cruzada.
-db.execute("INSERT INTO institutions(id,code,name) VALUES ('escola-2','SGB-0002','Segunda escola')")
+db.execute("INSERT INTO institutions(id,code,name,gre) VALUES ('escola-2','SGB-0002','Segunda escola',6)")
+assert db.execute("SELECT gre FROM institutions WHERE id='escola-2'").fetchone() == (6,)
 db.execute("INSERT INTO users(id,username,owner,salt,hash,role) VALUES ('user-2','biblioteca2','escola-2','s','h','bibliotecario')")
 db.execute("INSERT INTO books(id,owner,registration,data) VALUES ('novo','escola-2','00001','{}')")
 assert db.execute('SELECT COUNT(*) FROM books WHERE owner=?', (owner,)).fetchone()[0] == 1600

@@ -231,3 +231,8 @@ body {
 @media(max-width:600px){.topbar,.app-shell-start .topbar{padding:8px 12px}.topbar .brand{min-width:0;gap:6px}.topbar .brand-small{font-size:10px}.topbar .current-profile{max-width:85px;font-size:11px}.topbar .logout{padding:7px}.topbar .logout span{display:none}.topbar .nav-with-info{padding:0;min-width:0}.topbar .nav-with-info .main-nav{gap:0!important;justify-content:flex-start!important}.topbar .main-nav [data-slot=tabs-trigger]{font-size:12px;padding:0 6px}.extra-submenu{top:100%;left:0;width:min(260px,calc(100vw - 30px))}}
 
 .book-pagination{display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:14px 22px;color:#5d7082;font-size:13px;border-top:1px solid #e5ebf0;flex-wrap:wrap}.book-pagination button{background:#fff;color:#15517c;border:1px solid #ccd9e4;border-radius:5px;padding:7px 11px}.book-pagination button:hover:not(:disabled){background:#edf5fa}.book-pagination button:disabled{opacity:.5;cursor:default}
+/* Faixa de identificação do modo de suporte no SGB da escola. */
+.support-banner{display:flex;align-items:center;gap:12px;background:#eef5f9;border:1px solid #cbdde8;border-left:4px solid #16618b;border-radius:5px;color:#284d68;padding:13px 16px;margin:0 0 18px;font-size:13px;flex-wrap:wrap}
+.support-banner strong{display:block;color:#16567d;font-size:13px}.support-banner strong:before{content:'🛠 ';font-size:16px}.support-banner span{margin-right:auto}.support-banner button{border:1px solid #a9c3d3;background:#fff;color:#16567d;padding:7px 10px;border-radius:4px;font-weight:600}.support-banner button:hover{background:#e3f0f7}
+
+.support-banner-copy{display:flex;flex-direction:column;gap:3px;margin-right:auto}.support-banner-copy span{color:#4b6980}
