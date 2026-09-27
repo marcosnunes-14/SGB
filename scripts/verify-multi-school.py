@@ -10,7 +10,7 @@ from pathlib import Path
 if len(sys.argv) != 2:
     raise SystemExit('Informe o caminho do backup SQL exportado do D1.')
 source = Path(sys.argv[1]); db = sqlite3.connect(':memory:')
-db.executescript(source.read_text())
+db.executescript(source.read_text(encoding='utf-8'))
 tables = {row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
 needed = {'books','loans','users','sessions'}
 if not needed.issubset(tables):
@@ -30,7 +30,7 @@ if other_users:
 
 counts = {name:db.execute(f'SELECT COUNT(*) FROM {name}').fetchone()[0] for name in ('books','loans','users','sessions')}
 saved = {name:db.execute(f'SELECT * FROM {name} ORDER BY rowid').fetchall() for name in ('books','loans')}
-db.executescript(Path('drizzle/0003_multi_school.sql').read_text())
+db.executescript(Path('drizzle/0003_multi_school.sql').read_text(encoding='utf-8'))
 after = {name:db.execute(f'SELECT COUNT(*) FROM {name}').fetchone()[0] for name in counts}
 assert after==counts, (counts,after)
 assert all(db.execute(f'SELECT * FROM {name} ORDER BY rowid').fetchall()==saved[name] for name in saved)
