@@ -10,7 +10,7 @@ db.execute("INSERT INTO users VALUES ('administrator','biblioteca','library','sa
 for f in files[2:]:db.executescript(f.read_text())
 assert db.execute("SELECT role,hash FROM users").fetchone()==('bibliotecario','unchanged-hash')
 for id,owner,reg in [('a','library','001'),('b','library','002'),('foreign','other','003')]:db.execute('INSERT INTO books VALUES (?,?,?,?)',(id,owner,reg,json.dumps({'registration':reg,'title':'Livro'})))
-db.execute('INSERT INTO loans VALUES (?,?,?)',('loan','library',json.dumps({'code':'001','status':'Emprestado'})))
+db.execute('INSERT INTO loans(id,owner,data) VALUES (?,?,?)',('loan','library',json.dumps({'code':'001','status':'Emprestado'})))
 db.execute(rules['delete2'],('library','a','b','library','a','b'))
 assert db.execute('SELECT COUNT(*) FROM books').fetchone()[0]==3
 # Active-loan registration cannot change, other fields can.

@@ -236,3 +236,6 @@ body {
 .support-banner strong{display:block;color:#16567d;font-size:13px}.support-banner strong:before{content:'🛠 ';font-size:16px}.support-banner span{margin-right:auto}.support-banner button{border:1px solid #a9c3d3;background:#fff;color:#16567d;padding:7px 10px;border-radius:4px;font-weight:600}.support-banner button:hover{background:#e3f0f7}
 
 .support-banner-copy{display:flex;flex-direction:column;gap:3px;margin-right:auto}.support-banner-copy span{color:#4b6980}
+
+/* Sugestões discretas no formulário de empréstimo. */
+.student-combobox{position:relative;display:grid;gap:7px}.student-combobox>label{font-size:13px;font-weight:600}.student-suggestions{position:absolute;z-index:60;top:100%;left:0;right:0;max-height:228px;overflow:auto;background:white;border:1px solid #cbdbe6;border-radius:5px;box-shadow:0 8px 22px #153c5824}.student-suggestions button{display:grid;gap:3px;text-align:left;width:100%;padding:10px 13px;color:#234a63;background:#fff;border:0;border-bottom:1px solid #edf1f5;font:inherit;cursor:pointer}.student-suggestions button:hover,.student-suggestions button:focus{background:#edf5fa}.student-suggestions button small{color:#6b8192;font-size:11px}
