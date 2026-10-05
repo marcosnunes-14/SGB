@@ -1044,3 +1044,16 @@ Antes de modificar qualquer coisa:
 10. Após alterar, teste o funcionamento afetado e isolamento das escolas.
 11. Explique exatamente o que foi alterado, testado e publicado; diferencie commit de deploy.
 12. Informe qualquer risco encontrado e não declare dados, testes ou produção confirmados sem evidência.
+
+# 38. ATUALIZAÇÃO DE CIRCULAÇÃO E CONSULTA DE ALUNOS — 05/10/2026
+
+Esta atualização acrescenta as funções abaixo ao código, sem migration e sem acesso ao D1 de produção:
+
+- **Devolver:** abre confirmação, consulta a localização atual por escola e registro e mostra estante/prateleira. Quando não há localização, informa isso sem impedir a devolução.
+- **Renovar prazo:** disponível para empréstimos ainda não devolvidos. Exige uma data válida posterior ao prazo atual e preserva a data de entrega. O JSON do empréstimo guarda `renewals`, com prazo anterior, novo prazo, data/hora e usuário responsável. A devolução guarda `returnEvent`. Eventos também são gravados em `audit_logs` na mesma transação da alteração. Comparação com o estado anterior impede sobrescrever alterações simultâneas.
+- **Admin → Escolas → Consultar alunos:** consulta somente leitura dos alunos da escola escolhida, com busca por nome/código, filtro de série, totais de empréstimos, pendências, último empréstimo e histórico paginado. A API exige perfil desenvolvedor e valida escola/aluno no servidor; vínculos entre escolas diferentes não entram na contagem ou no histórico.
+- **Aviso de atualização:** aparece após entrar no sistema, uma vez por usuário e navegador para o identificador de atualização definido em `app/update-release.ts`. O recibo fica em localStorage; limpar o armazenamento ou usar outro navegador permite exibi-lo novamente. Quando o navegador bloqueia o armazenamento, o aviso é suprimido para evitar repetição. Alterar `UPDATE_RELEASE` em uma próxima atualização que deva ter novo aviso.
+
+Arquivos novos: `app/loan-actions-dialog.tsx`, `app/admin/school-students.tsx`, `app/api/admin/students/route.ts`, `app/update-notice.tsx` e `app/update-release.ts`. Integrações em Library, AdminConsole, páginas autenticadas, API de registros e estilos existentes. Nenhuma nova aba principal foi criada.
+
+Validação: testes de API/SQL e componentes em `tests/circulation-students.mjs` e `tests/circulation-ui.mjs`; regressões de livros, Dashboard, relatórios e etiquetas; TypeScript e compilação. O cenário de teste mantém 1.614 livros da escola A e outro exemplar da escola B, sem reescrever seus dados. Isso não certifica a contagem atual de produção. A publicação do código no GitHub é distinta da implantação no Worker; conferir o deploy da Cloudflare antes de afirmar que o site público está atualizado.

@@ -239,3 +239,19 @@ body {
 
 /* Sugestões discretas no formulário de empréstimo. */
 .student-combobox{position:relative;display:grid;gap:7px}.student-combobox>label{font-size:13px;font-weight:600}.student-suggestions{position:absolute;z-index:60;top:100%;left:0;right:0;max-height:228px;overflow:auto;background:white;border:1px solid #cbdbe6;border-radius:5px;box-shadow:0 8px 22px #153c5824}.student-suggestions button{display:grid;gap:3px;text-align:left;width:100%;padding:10px 13px;color:#234a63;background:#fff;border:0;border-bottom:1px solid #edf1f5;font:inherit;cursor:pointer}.student-suggestions button:hover,.student-suggestions button:focus{background:#edf5fa}.student-suggestions button small{color:#6b8192;font-size:11px}
+
+/* Circulação: confirmação de devolução e renovação. */
+.loan-row-actions{display:flex;flex-wrap:wrap;gap:6px 14px}
+.loan-action-dialog{max-height:90dvh;overflow-y:auto}
+.loan-action-book{display:flex;flex-direction:column;gap:5px;margin-bottom:20px;color:#203e56}
+.loan-action-book small{color:#657d90;font-size:12px}
+.loan-location{display:flex;gap:25px;flex-wrap:wrap;padding:16px;background:#f2f6f9;border:1px solid #dce6ee;border-radius:5px;color:#49667a}
+.loan-location strong{color:#174e76;margin-left:5px}
+.loan-location p{margin:0}
+.loan-current-due{margin-bottom:16px;color:#526b7e}
+.loan-new-due{display:flex;flex-direction:column;gap:8px;font-size:13px;color:#405d74}
+
+.sgb-update-notice{max-height:90dvh;overflow-y:auto}
+.sgb-update-notice ul{list-style:none;margin:0;padding:0;display:grid;gap:18px}
+.sgb-update-notice li strong{font-size:14px;color:#23465f}
+.sgb-update-notice li p{margin-top:5px;line-height:1.6;font-size:13px;color:#62788b}
