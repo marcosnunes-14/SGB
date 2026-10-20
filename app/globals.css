@@ -255,3 +255,16 @@ body {
 .sgb-update-notice ul{list-style:none;margin:0;padding:0;display:grid;gap:18px}
 .sgb-update-notice li strong{font-size:14px;color:#23465f}
 .sgb-update-notice li p{margin-top:5px;line-height:1.6;font-size:13px;color:#62788b}
+
+/* Movimentação de livros entre localizações. */
+.move-selection-bar{background:#eff5fa;border-color:#d4e3ef}
+.move-books-dialog{max-height:90dvh;overflow-y:auto}
+.move-destination{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.move-destination label{display:flex;flex-direction:column;gap:8px;font-size:13px;color:#405d74}
+.move-destination select{width:100%;min-height:40px;padding:8px;border:1px solid #cbd9e2;border-radius:5px;background:#fff;color:#203f53;font:inherit}
+.move-destination select:focus{outline:2px solid #8bbbd4;outline-offset:1px}
+.move-books-list{margin-top:20px;color:#526b7e;font-size:13px}
+.move-books-list summary{cursor:pointer;padding:5px 0}
+.move-books-list ul{max-height:180px;overflow:auto;margin-top:8px;padding-left:18px;list-style:disc;line-height:1.8}
+.move-destination-summary{margin-top:18px;font-size:13px;color:#365b76}
+@media(max-width:500px){.move-destination{grid-template-columns:1fr}}

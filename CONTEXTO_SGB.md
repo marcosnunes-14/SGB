@@ -1057,3 +1057,11 @@ Esta atualização acrescenta as funções abaixo ao código, sem migration e se
 Arquivos novos: `app/loan-actions-dialog.tsx`, `app/admin/school-students.tsx`, `app/api/admin/students/route.ts`, `app/update-notice.tsx` e `app/update-release.ts`. Integrações em Library, AdminConsole, páginas autenticadas, API de registros e estilos existentes. Nenhuma nova aba principal foi criada.
 
 Validação: testes de API/SQL e componentes em `tests/circulation-students.mjs` e `tests/circulation-ui.mjs`; regressões de livros, Dashboard, relatórios e etiquetas; TypeScript e compilação. O cenário de teste mantém 1.614 livros da escola A e outro exemplar da escola B, sem reescrever seus dados. Isso não certifica a contagem atual de produção. A publicação do código no GitHub é distinta da implantação no Worker; conferir o deploy da Cloudflare antes de afirmar que o site público está atualizado.
+
+# 39. MOVIMENTAÇÃO DE ATÉ 50 LIVROS — 20/10/2026
+
+Em Prateleiras, **Mover livros** ativa seleção de até 50 registros. **Mover selecionados** abre confirmação com estante (1–12) e prateleira (1–5) de destino. A seleção pode atravessar páginas sem ultrapassar o limite. O modo de exclusão existente continua separado, com seu limite de 100.
+
+`app/book-move-rules.ts` valida o lote e fornece um único UPDATE que modifica somente rack/shelf no JSON atual de cada livro, dentro da escola autenticada. Um lote com livro ausente ou de outra escola não move nenhum registro. IDs, registros, dados bibliográficos, códigos de etiquetas e empréstimos são preservados; livros emprestados também podem ter sua localização atualizada. A próxima consulta de devolução passa a mostrar o novo destino. A ação é registrada como `livros_movidos` no log existente.
+
+A interface usa `app/move-books-dialog.tsx`, com integração em Library/API de registros e estilos locais. O aviso de atualização ganhou a novidade e o identificador `2026-10-20-mover-livros`. Nenhuma migration foi criada ou aplicada, e o D1 de produção não foi acessado. Testes específicos: `tests/book-move.mjs` e `tests/book-move-ui.mjs`, cobrindo limite, isolamento, preservação, seleção entre páginas e confirmação.

@@ -1,6 +1,7 @@
 import {getUser} from '../../auth';
 import {database} from '@/db/raw';
 import {canClone,normalizeBook,deletionSql,editSql} from '../../book-rules';
+import {normalizeBookMove,moveBooksSql} from '../../book-move-rules';
 import {resolveStudent} from '../../students-data';
 import {compareRegistrations} from '../../registration-order';
 async function audit(institutionId:string,userId:string,action:string,details:string){try{await database().prepare('INSERT INTO audit_logs(id,institution_id,user_id,action,details) VALUES(?,?,?,?,?)').bind(crypto.randomUUID(),institutionId,userId,action,details).run()}catch(e){console.error('Audit log unavailable',e)}}
@@ -25,7 +26,14 @@ export async function POST(req:Request){
  if(!user.institutionId||!['bibliotecario','desenvolvedor'].includes(user.role))return Response.json({error:'Perfil sem permissão nesta escola.'},{status:403});
  if(req.headers.get('origin')!==new URL(req.url).origin)return Response.json({error:'Origem inválida'},{status:403});
  try{
- const {kind,data,action,id,ids,registrations,due,expectedDue}=await req.json() as {kind:string;data:Record<string,string>;action:string;id:string;ids:string[];registrations:string[];due:string;expectedDue:string};const db=database();
+ const {kind,data,action,id,ids,registrations,due,expectedDue,rack,shelf}=await req.json() as {kind:string;data:Record<string,string>;action:string;id:string;ids:string[];registrations:string[];due:string;expectedDue:string;rack:unknown;shelf:unknown};const db=database();
+ if(action==='move'){
+  const move=normalizeBookMove({ids,rack,shelf}),selection=JSON.stringify(move.ids);
+  const result=await db.prepare(moveBooksSql).bind(move.rack,move.shelf,user.userId,selection,user.userId,selection,move.ids.length).run();
+  if(!result.meta.changes)return Response.json({error:'Nenhum livro foi movido. Um dos livros foi removido ou não pertence a esta escola. Atualize a lista e selecione novamente.'},{status:409});
+  await audit(user.institutionId,user.id,'livros_movidos',JSON.stringify({ids:move.ids,rack:move.rack,shelf:move.shelf,quantidade:result.meta.changes}));
+  return Response.json({ok:true,count:result.meta.changes});
+ }
  if(action==='delete'){
   if(!Array.isArray(ids)||!ids.length||ids.length>100||ids.some(v=>typeof v!=='string'))throw Error('Selecione de 1 a 100 livros.');
   const unique=[...new Set(ids)];const result=await db.prepare(deletionSql(unique.length)).bind(user.userId,...unique,user.userId,...unique).run();
