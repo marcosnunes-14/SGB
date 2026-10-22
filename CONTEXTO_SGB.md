@@ -1089,3 +1089,11 @@ Na etapa seguinte, a bibliotecária informa um número de registro para cada clo
 Interface em `app/clone-books-dialog.tsx`, regras compartilhadas em `app/clone-rules.ts`, integração em Library/API de registros e estilos existentes. A API aceita `overrides` opcional, restrito aos campos permitidos e validado no servidor; chamadas antigas sem overrides continuam compatíveis. A verificação dos registros usa json_each para não ultrapassar 100 parâmetros vinculados. Inserções permanecem em batch transacional. O log `livros_clonados` inclui os nomes dos campos alterados.
 
 Nenhuma migration foi criada ou aplicada, e o D1 de produção não foi acessado. Aviso de atualização: `2026-10-22-clonagem-personalizada`. Testes em `tests/custom-clone.mjs` cobrem dados selecionados, preservação do original e campos extras, etiquetas novas, compatibilidade, lote de 100, validação, rollback, permissões, escola, formulário e retorno à etapa anterior.
+
+# 42. CORREÇÃO DO FLUXO: DADOS DIFERENTES POR CLONE — 22/10/2026
+
+Esta seção substitui o comportamento de campos compartilhados descrito na seção 41. A primeira etapa serve somente para marcar os campos e informar a quantidade. A segunda mostra Livro 1, Livro 2 etc., cada um com seu registro e os campos escolhidos (autor, título, CDD e outros). Os valores começam com os do original e podem ser alterados de forma independente. Voltar conserva valores e registros dos livros mantidos na quantidade; desmarcar um campo faz com que ele seja copiado do original na gravação.
+
+A API aceita `cloneOverrides`, array de objetos alinhado à lista `registrations`. Valida todos os objetos antes de inserir o lote: quantidade, campos permitidos, tipos e valores. A inserção continua em transação e mantém o original, IDs e etiquetas existentes. Pedidos antigos com overrides compartilhados ou sem overrides continuam compatíveis; não se aceita misturar os dois formatos no mesmo pedido. Nenhuma migration foi necessária e o D1 de produção não foi acessado. Aviso de atualização: `2026-10-22-clonagem-individual`.
+
+`tests/custom-clone.mjs` agora verifica explicitamente Livro 1 com Autor A/Título A/CDD 100 e Livro 2 com Autor B/Título B/CDD 200, além de preservação, validação sem inserção parcial, permissões, compatibilidade e o novo fluxo de preenchimento.

@@ -3,7 +3,7 @@ import {database} from '@/db/raw';
 import {canClone,normalizeBook,deletionSql,editSql} from '../../book-rules';
 import {normalizeBookMove,moveBooksSql} from '../../book-move-rules';
 import {normalizeOccurrence} from '../../loan-list-rules';
-import {normalizeCloneOverrides} from '../../clone-rules';
+import {normalizeCloneBatch} from '../../clone-rules';
 import {resolveStudent} from '../../students-data';
 import {compareRegistrations} from '../../registration-order';
 async function audit(institutionId:string,userId:string,action:string,details:string){try{await database().prepare('INSERT INTO audit_logs(id,institution_id,user_id,action,details) VALUES(?,?,?,?,?)').bind(crypto.randomUUID(),institutionId,userId,action,details).run()}catch(e){console.error('Audit log unavailable',e)}}
@@ -28,7 +28,7 @@ export async function POST(req:Request){
  if(!user.institutionId||!['bibliotecario','desenvolvedor'].includes(user.role))return Response.json({error:'Perfil sem permissão nesta escola.'},{status:403});
  if(req.headers.get('origin')!==new URL(req.url).origin)return Response.json({error:'Origem inválida'},{status:403});
  try{
- const {kind,data,action,id,ids,registrations,due,expectedDue,rack,shelf,occurrenceType,note,overrides}=await req.json() as {kind:string;data:Record<string,string>;action:string;id:string;ids:string[];registrations:string[];due:string;expectedDue:string;rack:unknown;shelf:unknown;occurrenceType:unknown;note:unknown;overrides:unknown};const db=database();
+ const {kind,data,action,id,ids,registrations,due,expectedDue,rack,shelf,occurrenceType,note,overrides,cloneOverrides}=await req.json() as {kind:string;data:Record<string,string>;action:string;id:string;ids:string[];registrations:string[];due:string;expectedDue:string;rack:unknown;shelf:unknown;occurrenceType:unknown;note:unknown;overrides:unknown;cloneOverrides:unknown};const db=database();
  if(action==='move'){
   const move=normalizeBookMove({ids,rack,shelf}),selection=JSON.stringify(move.ids);
   const result=await db.prepare(moveBooksSql).bind(move.rack,move.shelf,user.userId,selection,user.userId,selection,move.ids.length).run();
@@ -47,9 +47,9 @@ export async function POST(req:Request){
   if(!Array.isArray(registrations)||registrations.length<1||registrations.length>100||registrations.some(v=>typeof v!=='string'||!v.trim()||v.trim().length>100))throw Error('Informe de 1 a 100 registros válidos.');
   const numbers=registrations.map(v=>v.trim());if(new Set(numbers).size!==numbers.length)throw Error('Existem números repetidos no lote.');
   const original=await db.prepare('SELECT data FROM books WHERE id=? AND owner=?').bind(id,user.userId).first<{data:string}>();if(!original)throw Error('Livro original não encontrado.');
-  const changes=normalizeCloneOverrides(overrides),source=JSON.parse(original.data);const existing=await db.prepare('SELECT registration FROM books WHERE owner=? AND registration IN (SELECT value FROM json_each(?))').bind(user.userId,JSON.stringify(numbers)).all<{registration:string}>();
+  const changes=normalizeCloneBatch(overrides,cloneOverrides,numbers.length),source=JSON.parse(original.data);const existing=await db.prepare('SELECT registration FROM books WHERE owner=? AND registration IN (SELECT value FROM json_each(?))').bind(user.userId,JSON.stringify(numbers)).all<{registration:string}>();
   if(existing.results.length)throw Error('Registros já cadastrados: '+existing.results.map(r=>r.registration).join(', '));
-  await db.batch(numbers.map(registration=>db.prepare('INSERT INTO books(id,owner,registration,data) VALUES(?,?,?,?)').bind(crypto.randomUUID(),user.userId,registration,JSON.stringify({...source,...changes,registration}))));await audit(user.institutionId,user.id,'livros_clonados',JSON.stringify({original:id,quantidade:numbers.length,camposAlterados:Object.keys(changes)}));return Response.json({ok:true,count:numbers.length});
+  await db.batch(numbers.map((registration,index)=>db.prepare('INSERT INTO books(id,owner,registration,data) VALUES(?,?,?,?)').bind(crypto.randomUUID(),user.userId,registration,JSON.stringify({...source,...changes[index],registration}))));await audit(user.institutionId,user.id,'livros_clonados',JSON.stringify({original:id,quantidade:numbers.length,camposAlterados:[...new Set(changes.flatMap(change=>Object.keys(change)))]}));return Response.json({ok:true,count:numbers.length});
  }
  if(action==='return'||action==='renew'||action==='occurrence'){
   if(typeof id!=='string'||!id)throw Error('Empréstimo inválido.');

@@ -15,3 +15,8 @@ export function normalizeCloneOverrides(input:unknown){
  const normalized=normalizeBook({registration:'1',title:'Livro',authors:'Autor',copies:'1',rack:'1',shelf:'1',...values});
  return Object.fromEntries(Object.keys(values).map(key=>[key,['copies','rack','shelf','pages'].includes(key)&&normalized[key]!==''?String(Number(normalized[key])):normalized[key]]));
 }
+export function normalizeCloneBatch(overrides:unknown,individual:unknown,count:number){
+ if(individual===undefined)return Array.from({length:count},()=>normalizeCloneOverrides(overrides));
+ if(overrides!==undefined||!Array.isArray(individual)||individual.length!==count)throw Error('Informe os dados individuais de cada clone, na mesma ordem dos registros.');
+ return individual.map((value,index)=>{try{if(value===undefined)throw Error('Dados ausentes.');return normalizeCloneOverrides(value)}catch(e){throw Error(`Livro ${index+1}: ${(e as Error).message}`)}});
+}
