@@ -27,7 +27,7 @@ reset();tree=render(Dialog,{...props,ids:[...props.ids,'extra']});assert.equal(f
 reset();globalThis.fetch=async()=>Response.json({books,loans:[]});
 const librarySource=readFileSync('app/library.tsx','utf8');
 const names=[];for(const match of librarySource.matchAll(/^import \{([^}]+)\} from ['"]([^'"]+)['"];$/gm)){if(match[2]==='react'||match[2].includes('book-move-rules')||match[2].includes('book-rules')||match[2].includes('registration-order')||match[2].includes('version'))continue;for(const name of match[1].split(','))names.push(name.trim())}
-const components=['DeveloperPanel','DashboardPanel','InfoDialog','ExtraMenu','LabelsPanel','LoanActionsDialog','UpdateNotice','MoveBooksDialog'];
+const components=['DeveloperPanel','DashboardPanel','InfoDialog','ExtraMenu','LabelsPanel','LoanActionsDialog','UpdateNotice','MoveBooksDialog','LoansPanel','LoanDetailsDialog'];
 const prefix='const {useState,useEffect}=globalThis.__moveHooks;const {MAX_MOVE_BOOKS,selectBookPage,selectBook}=globalThis.__moveRules;const canClone=()=>true,compareRegistrations=(a,b)=>Number(b)-Number(a),SGB_VERSION="test";'+[...new Set([...names,...components])].map(name=>'const '+name+'='+JSON.stringify(name==='Button'?'button':name==='Input'?'input':name==='Checkbox'?'checkbox':name==='MoveBooksDialog'?'move-books-dialog':name.toLowerCase())+';').join('');
 const {default:Library}=await import(compile(prefix+'\n'+strip(librarySource)));
 const user={role:'bibliotecario',username:'Leila'};tree=render(Library,user);await settle();tree=render(Library,user);

@@ -24,7 +24,8 @@ const adapter={prepare(sql){return {args:[],bind(...args){this.args=args;return 
 globalThis.__sgbDb=adapter;globalThis.__sgbUser={id:'librarian',username:'Leila',institutionId:'a',userId:'a',role:'bibliotecario'};
 globalThis.__studentIdentity=identity;
 const loadRoute=async(path,extra='')=>import(compile('const getUser=async()=>globalThis.__sgbUser;const database=()=>globalThis.__sgbDb;'+extra+'\n'+readFileSync(path,'utf8').replace(/^import .*;\n/gm,'')));
-const records=await loadRoute('app/api/records/route.ts');
+globalThis.__loanListRules=await import(compile(readFileSync('app/loan-list-rules.ts','utf8')));
+const records=await loadRoute('app/api/records/route.ts','const {normalizeOccurrence}=globalThis.__loanListRules;');
 const admin=await loadRoute('app/api/admin/students/route.ts','const {studentCode,studentKey}=globalThis.__studentIdentity;');
 const get=(route,path)=>route.GET(new Request('https://sgb.test'+path));
 const post=(data,origin='https://sgb.test')=>records.POST(new Request('https://sgb.test/api/records',{method:'POST',headers:{origin,'Content-Type':'application/json'},body:JSON.stringify(data)}));
@@ -66,6 +67,16 @@ assert.equal((await (await get(admin,"/api/admin/students?institutionId=a&q="+en
 for(let i=0;i<55;i++)addStudent('a','Aluno '+String(i).padStart(3,'0'),'1º B');
 const first=await (await get(admin,'/api/admin/students?institutionId=a&grade=1%C2%BA%20B')).json(),second=await (await get(admin,'/api/admin/students?institutionId=a&grade=1%C2%BA%20B&page=2')).json();assert.equal(first.students.length,50);assert.ok(first.hasMore);assert.equal(second.students.length,5);assert.equal(second.hasMore,false);
 const loansBefore=db.prepare('SELECT * FROM loans ORDER BY id').all();await get(admin,'/api/admin/students?institutionId=b');assert.deepEqual(db.prepare('SELECT * FROM loans ORDER BY id').all(),loansBefore);
+assert.deepEqual(db.prepare('SELECT * FROM books ORDER BY id').all(),booksBefore);
+globalThis.__sgbUser={id:'librarian',username:'Leila',institutionId:'a',userId:'a',role:'bibliotecario'};
+assert.equal((await post({action:'occurrence',id:'loan-a',occurrenceType:'Dano no livro',note:' Capa danificada na devolução. '})).status,200);
+assert.equal(loan('loan-a').status,'Devolvido');assert.equal(loan('loan-a').occurrences[0].note,'Capa danificada na devolução.');assert.equal(loan('loan-a').occurrences[0].userId,'librarian');assert.equal(loan('loan-a').renewals.length,1);
+assert.equal((await post({action:'occurrence',id:'rollback',occurrenceType:'Perda ou extravio',note:'Aluno informou extravio.'})).status,200);assert.equal(loan('rollback').status,'Emprestado');
+assert.equal((await post({action:'occurrence',id:'loan-b',occurrenceType:'Outro',note:'Não pode gravar em outra escola.'})).status,404);
+for(const invalid of [{occurrenceType:'invalid',note:'Teste'},{occurrenceType:'Outro',note:''},{occurrenceType:'Outro',note:'x'.repeat(2001)},{occurrenceType:'Outro',note:{text:'inválido'}}])assert.equal((await post({action:'occurrence',id:'loan-a',...invalid})).status,400);
+const detailHistory=await (await get(records,'/api/records?loanId=loan-a')).json();assert.equal(detailHistory.loan.grade,original.grade);assert.equal(detailHistory.loan.occurrences.length,1);assert.equal(detailHistory.loan.renewals.length,1);assert.ok(detailHistory.loan.returnEvent.at);
+globalThis.__sgbUser.role='direcao';assert.equal((await post({action:'occurrence',id:'loan-a',occurrenceType:'Outro',note:'Sem permissão.'})).status,403);
+assert.equal(db.prepare("SELECT COUNT(*) AS n FROM audit_logs WHERE action='ocorrencia_emprestimo'").get().n,2);
 assert.deepEqual(db.prepare('SELECT * FROM books ORDER BY id').all(),booksBefore);
 globalThis.__sgbUser=null;assert.equal((await get(admin,'/api/admin/students?institutionId=a')).status,401);assert.equal((await get(records,'/api/records?loanId=loan-a')).status,401);
 const release=await import(compile(readFileSync('app/update-release.ts','utf8'))),values=new Map(),storage={getItem:key=>values.get(key),setItem:(key,value)=>values.set(key,value)};

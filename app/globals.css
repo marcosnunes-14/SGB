@@ -268,3 +268,22 @@ body {
 .move-books-list ul{max-height:180px;overflow:auto;margin-top:8px;padding-left:18px;list-style:disc;line-height:1.8}
 .move-destination-summary{margin-top:18px;font-size:13px;color:#365b76}
 @media(max-width:500px){.move-destination{grid-template-columns:1fr}}
+
+/* Pesquisa e acompanhamento da circulação. */
+.loan-search-toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:18px 20px;border-bottom:1px solid #e2e9ef}
+.loan-search-toolbar .search{flex:1;min-width:230px;max-width:600px}
+.loan-advanced-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;padding:18px 20px;border-bottom:1px solid #e2e9ef;background:#f8fafc}
+.loan-advanced-filters label,.loan-occurrence-form label{display:flex;flex-direction:column;gap:7px;font-size:12px;color:#4b6579}
+.loan-advanced-filters select,.loan-occurrence-form select,.loan-occurrence-form textarea{padding:9px;background:#fff;border:1px solid #cbd9e2;border-radius:5px;color:#203f53;font:inherit}
+.loan-advanced-filters .loan-occurrence-filter{flex-direction:row;align-items:center;gap:8px}
+.loan-occurrence-mark{color:#856128!important}
+.loan-details-dialog{max-width:620px!important;max-height:90dvh;overflow-y:auto}
+.loan-detail-fields{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:4px 0}
+.loan-detail-fields dt{font-size:11px;color:#718596;margin-bottom:5px}.loan-detail-fields dd{font-size:14px;color:#263f54;margin:0;overflow-wrap:anywhere}
+.loan-detail-fields dd small{display:block;color:#6f8393;margin-top:5px}.loan-detail-wide{grid-column:1/-1}
+.loan-details-actions{display:flex;gap:10px;flex-wrap:wrap;border-top:1px solid #e2e9ef;padding-top:18px;align-items:center}
+.loan-occurrence-form{display:grid;gap:15px;background:#f7fafc;border:1px solid #e1e9ef;padding:16px;border-radius:5px}
+.loan-occurrence-form p{font-size:12px;color:#6a7e8f;line-height:1.6}.loan-occurrence-form textarea{resize:vertical}
+.loan-history{border-top:1px solid #e2e9ef;padding-top:18px}.loan-history h3{font-size:14px;font-weight:600;color:#294c66;margin-bottom:15px}
+.loan-history ol{list-style:none;padding:0;margin:0}.loan-history li{border-left:2px solid #d8e5ee;padding:0 0 18px 14px}.loan-history li strong{font-size:13px;color:#294c66}.loan-history small{display:block;font-size:11px;color:#7a8d9b;margin:5px 0}.loan-history p{font-size:13px;color:#5e7485;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}.loan-detail-success{color:#246b53;font-size:13px}
+@media(max-width:800px){.loan-advanced-filters{grid-template-columns:1fr 1fr}}@media(max-width:500px){.loan-advanced-filters,.loan-detail-fields{grid-template-columns:1fr}.loan-search-toolbar .search{min-width:100%}}
