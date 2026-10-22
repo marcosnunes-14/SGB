@@ -1,5 +1,5 @@
 // Trocar este identificador quando houver uma nova atualização a anunciar.
-export const UPDATE_RELEASE='2026-10-22-emprestimos';
+export const UPDATE_RELEASE='2026-10-22-clonagem-personalizada';
 export function claimUpdateNotice(storage:Pick<Storage,'getItem'|'setItem'>,userId:string){
  const key=`sgb:update:${userId}:${UPDATE_RELEASE}`;
  try{if(storage.getItem(key))return false;storage.setItem(key,'seen');return true}catch{return false}

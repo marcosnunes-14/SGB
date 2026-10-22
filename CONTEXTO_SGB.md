@@ -1079,3 +1079,13 @@ O comprovante em `/emprestimos/comprovante?id=...` abre em nova aba, exige auten
 Regras/tipos em `app/loan-list-rules.ts`, detalhes em `app/loan-details-dialog.tsx`, integração na Library e API de registros. O JSON de cada empréstimo recebe `occurrences` quando necessário; nenhuma migration foi criada, e o D1 de produção não foi acessado. O aviso da versão foi atualizado para `2026-10-22-emprestimos`.
 
 Testes específicos em `tests/loans-panel.mjs` e ampliação de `tests/circulation-students.mjs`: busca, filtros, paginação, permissões, histórico, ocorrências em pendentes e devolvidos, rejeição de escola diferente e comprovante isolado. Testes existentes de acervo, movimentação, etiquetas, Dashboard e relatórios também são executados. A compilação/testes não confirmam o deploy do Worker público.
+
+# 41. CLONAGEM COM CAMPOS PERSONALIZADOS — 22/10/2026
+
+O botão Clonar mantém os perfis e o limite anteriores (1–100 clones). A primeira etapa agora mostra campos selecionáveis antes da quantidade: título, autores, CDD, tipo, editora, ano, local, páginas, exemplares por clone, estante e prateleira. Apenas campos marcados recebem os novos valores, iguais em todos os clones do lote. Os demais dados vêm do livro original da escola autenticada. O original não é editado.
+
+Na etapa seguinte, a bibliotecária informa um número de registro para cada clone e pode revisar os campos alterados. Voltar à primeira etapa preserva os registros já digitados enquanto a quantidade permitir. Os registros do lote e os já existentes continuam sendo validados antes da inserção. IDs e códigos de etiquetas dos novos livros são gerados normalmente; não se reutiliza a identidade do original.
+
+Interface em `app/clone-books-dialog.tsx`, regras compartilhadas em `app/clone-rules.ts`, integração em Library/API de registros e estilos existentes. A API aceita `overrides` opcional, restrito aos campos permitidos e validado no servidor; chamadas antigas sem overrides continuam compatíveis. A verificação dos registros usa json_each para não ultrapassar 100 parâmetros vinculados. Inserções permanecem em batch transacional. O log `livros_clonados` inclui os nomes dos campos alterados.
+
+Nenhuma migration foi criada ou aplicada, e o D1 de produção não foi acessado. Aviso de atualização: `2026-10-22-clonagem-personalizada`. Testes em `tests/custom-clone.mjs` cobrem dados selecionados, preservação do original e campos extras, etiquetas novas, compatibilidade, lote de 100, validação, rollback, permissões, escola, formulário e retorno à etapa anterior.
