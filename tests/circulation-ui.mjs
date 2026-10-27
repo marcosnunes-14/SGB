@@ -34,5 +34,5 @@ const values=new Map();globalThis.window={localStorage:{getItem:key=>values.get(
 const release=await import(compile(readFileSync('app/update-release.ts','utf8')));globalThis.__claim=release.claimUpdateNotice;const Notice=await load('app/update-notice.tsx','const claimUpdateNotice=globalThis.__claim;');
 reset();tree=render(Notice,{userId:'leila'});await settle();tree=render(Notice,{userId:'leila'});assert.equal(tree.props.open,true);button(tree,'Entendi').props.onClick();tree=render(Notice,{userId:'leila'});assert.equal(tree.props.open,false);
 reset();tree=render(Notice,{userId:'leila'});await settle();tree=render(Notice,{userId:'leila'});assert.equal(tree.props.open,false);
-reset();tree=render(Notice,{userId:'dev',developer:true});await settle();tree=render(Notice,{userId:'dev',developer:true});assert.equal(tree.props.open,true);assert.ok(content(tree).includes('Consulta de alunos por escola'));
+reset();tree=render(Notice,{userId:'dev',developer:true});await settle();tree=render(Notice,{userId:'dev',developer:true});assert.equal(tree.props.open,true);assert.ok(content(tree).includes('Aplicativo SGB'));
 reset();console.log('PASS: confirmação mostra localização; ausência não bloqueia; renovação envia prazo esperado, bloqueia salvamento duplo e mostra conflito; consulta abre histórico da escola; aviso fecha e não repete após remontagem.');

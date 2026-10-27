@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import ts from 'typescript';
+const js=ts.transpileModule(readFileSync('app/offline/vault.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
+const vault=await import('data:text/javascript;base64,'+Buffer.from(js).toString('base64'));
+const metadata={id:'user:school',username:'Bibliotecária',school:'Escola de teste',salt:vault.newSalt(),iv:'',cipher:'',revision:0};
+const key=await vault.deriveKey('senha-local-de-teste',metadata.salt),data={user:{id:'user',institutionId:'school'},snapshot:{books:[{id:'1',title:'Livro confidencial da fixture'}],loans:[],students:[],labels:[]},queue:[{id:'pending',body:{student:'Aluno da fixture'}}],syncedAt:'2026-10-27T00:00:00Z'};
+const envelope=await vault.seal(data,key,metadata);assert.equal(envelope.revision,1);assert.deepEqual(await vault.unseal(envelope,key),data);assert.ok(!JSON.stringify(envelope).includes('Livro confidencial'));assert.ok(!JSON.stringify(envelope).includes('Aluno da fixture'));
+await assert.rejects(()=>vault.unseal({...envelope,id:'another-school'},key));
+const wrong=await vault.deriveKey('senha-incorreta',metadata.salt);await assert.rejects(()=>vault.unseal(envelope,wrong));
+const cipher=envelope.cipher;await assert.rejects(()=>vault.unseal({...envelope,cipher:(cipher[0]==='A'?'B':'A')+cipher.slice(1)},key));
+const again=await vault.seal(data,key,envelope);assert.notEqual(again.iv,envelope.iv);assert.notEqual(again.cipher,envelope.cipher);assert.equal(again.revision,2);assert.deepEqual(await vault.unseal(again,key),data);
+console.log('PASS cofre: PBKDF2/AES-GCM; dados e fila cifrados; senha errada, perfil trocado e adulteração rejeitados; IV aleatório e revisões preservadas.');

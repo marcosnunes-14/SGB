@@ -21,6 +21,7 @@ export default function ExtraMenu({books,loans,loading,onReports,onLabels}:Props
   return <div className="extra-menu" ref={root}>
     <button type="button" className="extra-menu-trigger" aria-label="Menu de Funções Extras" title="Funções extras" aria-expanded={open} aria-haspopup="menu" onClick={()=>{setOpen(value=>!value);setSection('')}}><Menu size={22}/></button>
     {open&&<div className="extra-menu-list" role="menu" aria-label="Funções extras">
+      <a className="extra-menu-item" href="/aplicativo" onClick={close}>Aplicativo · instalar e usar offline</a>
       {['Relatórios','Exportações'].map(label=><div className="extra-menu-group" key={label} onMouseEnter={()=>setSection(label)} onFocus={()=>setSection(label)}>
         <button type="button" className={'extra-menu-item extra-menu-parent'+(section===label?' active':'')} aria-expanded={section===label} onClick={()=>setSection(label)}>{label}<ChevronRight size={15}/></button>
         {section===label&&<div className="extra-submenu" role="group" aria-label={label}>

@@ -3,6 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "SGB | Sistema de Gestão Bibliotecária",
+  manifest: "/manifest.webmanifest",
   description: "Gestão de acervo, prateleiras e empréstimos para bibliotecas.",
   other: {
     "codex-preview": "development",
