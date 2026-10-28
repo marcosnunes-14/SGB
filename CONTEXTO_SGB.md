@@ -1120,7 +1120,7 @@ Validação: `tests/offline-sync.mjs` (SQL real, transações, alunos, 100 clone
 ## 44. Seleção de turmas nos empréstimos — 28/10/2026
 
 - O campo Turma do novo empréstimo agora é um seletor obrigatório com oito opções: 1 "A" DS, 1 "A" ADM, 1 "B" ADM, 2 "A" DS, 2 "A" MKT, 2 "B" MKT, 3 "A" DS e 3 "B" DS.
-- Filtros da aba Empréstimos apresentam as mesmas opções, mesmo sem empréstimos registrados. Séries antigas fora dessa lista permanecem disponíveis para consulta.
-- A comparação do filtro reconhece a grafia antiga equivalente (ex.: 2º A DS), sem reescrever registros. Autocomplete conserva o valor e ID do aluno antigo, exibindo o rótulo atual quando equivalente. Trocar a turma desfaz o vínculo anterior, como já ocorria com a edição manual.
+- Filtros da aba Empréstimos apresentam as mesmas opções, mesmo sem empréstimos registrados. Somente as oito turmas informadas são oferecidas; séries antigas não são acrescentadas aos seletores. Empréstimos antigos continuam visíveis na consulta geral.
+- A comparação do filtro reconhece a grafia antiga equivalente (ex.: 2º A DS), sem reescrever registros. Autocomplete conserva o valor e ID do aluno antigo, exibindo o rótulo atual quando equivalente. Trocar a turma desfaz o vínculo anterior, como já ocorria com a edição manual. Ao escolher um aluno de turma antiga fora da lista, o campo fica vazio para exigir a escolha de uma turma permitida.
 - Mesma interface no site e no aplicativo; nenhuma migration ou alteração direta no banco.
 - Validação: testes da listagem e do formulário/autocomplete, circulação, modo offline, TypeScript e build.

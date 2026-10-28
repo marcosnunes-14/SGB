@@ -8,7 +8,6 @@ export function loanClassLabel(value:string){
 export function loanClassOptions(current=''){
  const label=loanClassLabel(current);
  const options:{label:string;value:string}[]=LOAN_CLASSES.map(turma=>({label:turma,value:current&&turma===label?current:turma}));
- if(current&&!LOAN_CLASSES.some(turma=>turma===label))options.push({label:current,value:current});
  return options;
 }
 
