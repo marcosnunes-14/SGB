@@ -25,10 +25,11 @@ await flat(tree).find(n=>n.type==='form').props.onSubmit({preventDefault(){}});t
 let finish;globalThis.fetch=()=>new Promise(resolve=>finish=resolve);const posting=flat(tree).find(n=>n.type==='form').props.onSubmit({preventDefault(){}});tree=render(Dialog,props);assert.equal(findButton(tree,'Movendo…').props.disabled,true);tree.props.onOpenChange(false);assert.equal(closed,0);finish(Response.json({ok:true,count:50}));await posting;assert.equal(saved,50);
 reset();tree=render(Dialog,{...props,ids:[...props.ids,'extra']});assert.equal(findButton(tree,'Confirmar mudança').props.disabled,true);
 reset();globalThis.fetch=async()=>Response.json({books,loans:[]});
+globalThis.__loanClassRules=await import(compile(readFileSync('app/loan-list-rules.ts','utf8')));
 const librarySource=readFileSync('app/library.tsx','utf8');
-const names=[];for(const match of librarySource.matchAll(/^import \{([^}]+)\} from ['"]([^'"]+)['"];$/gm)){if(match[2]==='react'||match[2].includes('book-move-rules')||match[2].includes('book-rules')||match[2].includes('registration-order')||match[2].includes('version'))continue;for(const name of match[1].split(','))names.push(name.trim())}
+const names=[];for(const match of librarySource.matchAll(/^import \{([^}]+)\} from ['"]([^'"]+)['"];$/gm)){if(match[2]==='react'||match[2].includes('book-move-rules')||match[2].includes('book-rules')||match[2].includes('registration-order')||match[2].includes('version')||match[2].includes('loan-list-rules'))continue;for(const name of match[1].split(','))names.push(name.trim())}
 const components=['DeveloperPanel','DashboardPanel','InfoDialog','ExtraMenu','LabelsPanel','LoanActionsDialog','UpdateNotice','MoveBooksDialog','LoansPanel','LoanDetailsDialog','CloneBooksDialog'];
-const prefix='const {useState,useEffect}=globalThis.__moveHooks;const {MAX_MOVE_BOOKS,selectBookPage,selectBook}=globalThis.__moveRules;const canClone=()=>true,compareRegistrations=(a,b)=>Number(b)-Number(a),SGB_VERSION="test";'+[...new Set([...names,...components])].map(name=>'const '+name+'='+JSON.stringify(name==='Button'?'button':name==='Input'?'input':name==='Checkbox'?'checkbox':name==='MoveBooksDialog'?'move-books-dialog':name.toLowerCase())+';').join('');
+const prefix='const {useState,useEffect}=globalThis.__moveHooks;const {loanClassOptions}=globalThis.__loanClassRules;const {MAX_MOVE_BOOKS,selectBookPage,selectBook}=globalThis.__moveRules;const canClone=()=>true,compareRegistrations=(a,b)=>Number(b)-Number(a),SGB_VERSION="test";'+[...new Set([...names,...components])].map(name=>'const '+name+'='+JSON.stringify(name==='Button'?'button':name==='Input'?'input':name==='Checkbox'?'checkbox':name==='MoveBooksDialog'?'move-books-dialog':name.toLowerCase())+';').join('');
 const {default:Library}=await import(compile(prefix+'\n'+strip(librarySource)));
 const user={role:'bibliotecario',username:'Leila'};tree=render(Library,user);await settle();tree=render(Library,user);
 const shelf=()=>flat(tree).find(n=>n.type==='tabscontent'&&n.props.value==='shelves');
@@ -40,3 +41,17 @@ rowBoxes[0].props.onCheckedChange(true);tree=render(Library,user);assert.ok(find
 findButton(shelf(),'Mover selecionados (50)').props.onClick();tree=render(Library,user);const opened=flat(tree).find(n=>n.type==='move-books-dialog');assert.equal(opened.props.ids.length,50);opened.props.onSaved(50);tree=render(Library,user);assert.ok(!flat(tree).some(n=>n.type==='move-books-dialog'));assert.ok(!content(shelf()).includes('Mover selecionados'));
 findButton(shelf(),'Excluir livros').props.onClick();tree=render(Library,user);assert.ok(content(shelf()).includes('até 100 por vez'));
 reset();console.log('PASS: destino obrigatório; 12 estantes/5 prateleiras; confirmação de lote; erro preserva seleção; fechamento bloqueado durante gravação; limite de 50 na interface entre páginas; sucesso encerra seleção; exclusão continua com limite 100.');
+
+// O novo empréstimo exige escolha de turma e mantém o vínculo do aluno legado no autocomplete.
+reset();globalThis.fetch=async(url)=>Response.json(String(url).includes('/api/students')?{students:[{id:'42',name:'Marcos Emanuel',grade:'2º A DS',loansCount:3}]}:{books,loans:[]});
+tree=render(Library,user);await settle();tree=render(Library,user);
+flat(tree).find(n=>n.type==='loanspanel').props.onNewLoan();tree=render(Library,user);
+let gradeField=flat(tree).find(n=>n.type==='select'&&n.props.name==='grade');
+assert.equal(gradeField.props.required,true);assert.equal(gradeField.props.value,'');
+assert.deepEqual(flat(gradeField).filter(n=>n.type==='option').slice(1).map(content),globalThis.__loanClassRules.LOAN_CLASSES);
+gradeField.props.onChange({target:{value:'2 "B" MKT'}});tree=render(Library,user);assert.equal(flat(tree).find(n=>n.props?.name==='grade').props.value,'2 "B" MKT');
+flat(tree).find(n=>n.props?.id==='loan-student').props.onChange({target:{value:'Marcos'}});tree=render(Library,user);await new Promise(resolve=>setTimeout(resolve,230));tree=render(Library,user);
+flat(tree).find(n=>n.props?.role==='option').props.onClick();tree=render(Library,user);
+gradeField=flat(tree).find(n=>n.type==='select'&&n.props.name==='grade');assert.equal(gradeField.props.value,'2º A DS');assert.equal(flat(gradeField).filter(n=>n.type==='option').find(n=>n.props.value==='2º A DS').props.children,'2 "A" DS');assert.equal(flat(tree).find(n=>n.props?.name==='studentId').props.value,'42');
+gradeField.props.onChange({target:{value:'3 "B" DS'}});tree=render(Library,user);assert.equal(flat(tree).find(n=>n.props?.name==='studentId').props.value,'');
+reset();console.log('PASS turmas: oito opções obrigatórias; seleção no empréstimo; autocomplete preserva série e ID antigos; troca de turma desfaz vínculo anterior.');

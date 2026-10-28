@@ -1,4 +1,17 @@
 export const LOANS_PAGE_SIZE=50;
+// Opções de turma para novos empréstimos. Valores antigos continuam armazenados como estão.
+export const LOAN_CLASSES=['1 "A" DS','1 "A" ADM','1 "B" ADM','2 "A" DS','2 "A" MKT','2 "B" MKT','3 "A" DS','3 "B" DS'] as const;
+const compactClass=(value:string)=>value.trim().replace(/[º°"“”'‘’\s]/gu,'').toLocaleUpperCase('pt-BR');
+export function loanClassLabel(value:string){
+ return LOAN_CLASSES.find(turma=>compactClass(turma)===compactClass(value))||value;
+}
+export function loanClassOptions(current=''){
+ const label=loanClassLabel(current);
+ const options:{label:string;value:string}[]=LOAN_CLASSES.map(turma=>({label:turma,value:current&&turma===label?current:turma}));
+ if(current&&!LOAN_CLASSES.some(turma=>turma===label))options.push({label:current,value:current});
+ return options;
+}
+
 export const occurrenceTypes=['Observação','Contato com aluno ou responsável','Perda ou extravio','Dano no livro','Livro encontrado','Correção informada','Outro'] as const;
 export type LoanEvent={id:string;at:string;userId:string;userName:string};
 export type LoanOccurrence=LoanEvent&{type:string;note:string};
@@ -8,9 +21,9 @@ export type LoanFilters={view:'pending'|'returned';query:string;grade:string;tim
 export const loanTextKey=(value:string)=>value.trim().replace(/\s+/gu,' ').normalize('NFKD').replace(/\p{M}/gu,'').toLocaleLowerCase('pt-BR');
 export function loanStatus(loan:LoanRecord,today:string){return loan.status==='Devolvido'?'Devolvido':loan.due&&loan.due<today?'Atrasado':'Emprestado'}
 export function filterLoans(loans:LoanRecord[],filters:LoanFilters){
- const query=loanTextKey(filters.query),grade=loanTextKey(filters.grade);
+ const query=loanTextKey(filters.query),grade=loanTextKey(loanClassLabel(filters.grade));
  return loans.filter(l=>filters.view==='returned'?l.status==='Devolvido':l.status!=='Devolvido')
-  .filter(l=>!grade||loanTextKey(l.grade||'')===grade)
+  .filter(l=>!grade||loanTextKey(loanClassLabel(l.grade||''))===grade)
   .filter(l=>!filters.start||(l.delivery||'')>=filters.start).filter(l=>!filters.end||(l.delivery||'')<=filters.end)
   .filter(l=>!filters.occurrences||Array.isArray(l.occurrences)&&l.occurrences.length>0)
   .filter(l=>filters.view==='returned'||filters.timing==='all'||(filters.timing==='late'?!!l.due&&l.due<filters.today:filters.timing==='today'?l.due===filters.today:!!l.due&&l.due>filters.today))

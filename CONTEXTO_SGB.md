@@ -1115,3 +1115,12 @@ Conflitos não substituem registros automaticamente. O usuário pode revisar/rea
 Arquivos centrais: `app/offline/model.ts`, `client.ts`, `vault.ts`, `app.tsx`, `documents.tsx`, `app.css`; rota `app/aplicativo/page.tsx`; API offline; manifesto/SW/ícones; gerador de assets. Integrações pequenas em layout, menu, Library (callback de saída local), impressão e aviso de atualização. A versão visual já existente foi mantida, com aviso `2026-10-27-aplicativo-offline`.
 
 Validação: `tests/offline-sync.mjs` (SQL real, transações, alunos, 100 clones, movimentos, CAS, idempotência, rollback e escolas/perfis); `tests/offline-vault.mjs` (cifragem, senha incorreta, adulteração e AAD/perfil); `tests/offline-client.mjs` (gravação durante sincronização, falta de espaço e resposta perdida); `tests/offline-browser.mjs`/`scripts/test-offline-browser.mjs` (Chromium com perfil persistente, fechamento completo/reabertura sem rede, fluxo de empréstimo até ocorrência, comprovante offline, resposta perdida, conflitos/revisão e edição dependente, persistência concorrente, manifesto e site separado). O teste de navegador usa apenas localhost/127.0.0.1 e um D1 temporário com 1.614 livros fictícios. Os testes anteriores de acervo, clones, movimentação, relatórios, Dashboard e etiquetas permanecem pertinentes. A impressão física e o deploy do Worker público não foram confirmados no desenvolvimento.
+
+
+## 44. Seleção de turmas nos empréstimos — 28/10/2026
+
+- O campo Turma do novo empréstimo agora é um seletor obrigatório com oito opções: 1 "A" DS, 1 "A" ADM, 1 "B" ADM, 2 "A" DS, 2 "A" MKT, 2 "B" MKT, 3 "A" DS e 3 "B" DS.
+- Filtros da aba Empréstimos apresentam as mesmas opções, mesmo sem empréstimos registrados. Séries antigas fora dessa lista permanecem disponíveis para consulta.
+- A comparação do filtro reconhece a grafia antiga equivalente (ex.: 2º A DS), sem reescrever registros. Autocomplete conserva o valor e ID do aluno antigo, exibindo o rótulo atual quando equivalente. Trocar a turma desfaz o vínculo anterior, como já ocorria com a edição manual.
+- Mesma interface no site e no aplicativo; nenhuma migration ou alteração direta no banco.
+- Validação: testes da listagem e do formulário/autocomplete, circulação, modo offline, TypeScript e build.
