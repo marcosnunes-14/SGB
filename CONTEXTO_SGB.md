@@ -1147,3 +1147,12 @@ Validação: `tests/offline-sync.mjs` (SQL real, transações, alunos, 100 clone
 - O gráfico principal dos alunos agora ocupa a largura do Dashboard e usa linha azul, pontos e quantidades, no padrão do antigo gráfico de empréstimos.
 - Eixo horizontal por aluno; eixo vertical com quantidade de livros devolvidos. Nomes completos e turmas no tooltip e na lista recolhida. Em telas estreitas, rolagem somente dentro do gráfico evita comprimir os nomes.
 - Sem alterações no cálculo ou banco. Tipos, build, ranking e navegador verificados.
+
+
+## 48. Compartilhamento do gráfico de leitores — 29/10/2026
+
+- Botão Compartilhar gráfico no Dashboard abre uma prévia PNG em alta resolução com gráfico de linha, escola, datas, filtro de turma, nomes completos e quantidades do mesmo top 10 exibido.
+- Baixar imagem funciona no computador; compartilhamento nativo de arquivo aparece quando o aparelho oferece suporte. O arquivo é preparado antes do clique nativo, preservando a ativação do usuário. Cancelar não baixa nem envia nada automaticamente.
+- Imagem gerada inteiramente no navegador, inclusive offline, sem serviço externo, URL pública ou mudança no D1. Nomes longos são quebrados em linhas e o SVG escapa caracteres de texto.
+- O botão fica bloqueado durante atualização dos filtros, erro ou ausência de leitores. A prévia captura os dados e as datas juntos, evitando rotular dados anteriores com novo período.
+- Testes: conteúdo/nomes/quantidades/datas/turmas/escape/top 10/nomes longos; PNG real, download e período personalizado no navegador; fluxo nativo simulado e bloqueio durante troca de filtros; tipos e build.

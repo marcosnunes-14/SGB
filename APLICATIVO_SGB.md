@@ -17,7 +17,7 @@ A preparação precisa ser feita em cada computador. Não use um computador púb
 
 Desbloqueie o aplicativo com a senha local. A cópia já preparada permite consultar o acervo, prateleiras, alunos e empréstimos; pesquisar e paginar; cadastrar e editar livros; clonar com dados por livro; mover livros; registrar empréstimos, devoluções, renovações e ocorrências. As exclusões mantêm a proteção para empréstimos ativos.
 
-Dashboard, relatórios, comprovantes e exportações no aplicativo usam a cópia disponível naquele computador, incluindo alterações pendentes. Relatórios e comprovantes abrem dentro da área do aplicativo, em outra janela/aba, com o mesmo desbloqueio local. A impressão usa o navegador e os drivers instalados no computador.
+Dashboard, relatórios, comprovantes e exportações no aplicativo usam a cópia disponível naquele computador, incluindo alterações pendentes. Relatórios e comprovantes abrem dentro da área do aplicativo, em outra janela/aba, com o mesmo desbloqueio local. A impressão usa o navegador e os drivers instalados no computador. No Dashboard, **Compartilhar gráfico** gera uma imagem com período, escola e os leitores; é possível baixar o PNG mesmo sem internet.
 
 É possível imprimir etiquetas cujos códigos oficiais já tenham sido sincronizados. Livros e exemplares novos recebem os códigos oficiais somente depois de sincronizar, preservando a identidade única gerada pelo D1. O painel administrativo, mudanças de escola/permissões e o primeiro login continuam exigindo internet.
 
