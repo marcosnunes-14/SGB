@@ -1124,3 +1124,12 @@ Validação: `tests/offline-sync.mjs` (SQL real, transações, alunos, 100 clone
 - A comparação do filtro reconhece a grafia antiga equivalente (ex.: 2º A DS), sem reescrever registros. Autocomplete conserva o valor e ID do aluno antigo, exibindo o rótulo atual quando equivalente. Trocar a turma desfaz o vínculo anterior, como já ocorria com a edição manual. Ao escolher um aluno de turma antiga fora da lista, o campo fica vazio para exigir a escolha de uma turma permitida.
 - Mesma interface no site e no aplicativo; nenhuma migration ou alteração direta no banco.
 - Validação: testes da listagem e do formulário/autocomplete, circulação, modo offline, TypeScript e build.
+
+
+## 45. Leitores no Dashboard e empréstimos pendentes — 29/10/2026
+
+- Dashboard destaca Alunos que mais leram livros e livros mais lidos. Indicadores, ranking e gráficos consideram somente registros devolvidos, agrupados pelo ID do aluno e limitados à escola. O período continua sendo a data da retirada. A interface esclarece que devolver não comprova conclusão da leitura; não há confirmação de leitura inventada.
+- Tela Empréstimos não tem mais os botões Falta entregar/Entregues: abre diretamente os pendentes, mantém pesquisa, oito turmas, prazo, paginação de 50, devolução e renovação. Ao devolver, o registro sai da lista.
+- Site carrega /api/records?pending=1, filtrando no D1 antes de enviar os dados. O adaptador offline respeita o mesmo parâmetro. Relatórios/estatísticas preservam o histórico; CSV/JSON solicitam os dados completos somente ao exportar.
+- Nome do aluno é convertido em maiúsculas na digitação e no autocomplete; API e modelo offline também gravam o nome do novo empréstimo em maiúsculas, inclusive ao selecionar um cadastro antigo. Novos alunos são criados em maiúsculas; a chave normalizada e o ID antigo são preservados, sem conversão em massa.
+- Sem migrations, exclusões ou acesso ao D1 de produção. Testes locais cobrem nomes e vínculos, lista de pendentes, ranking real por devoluções, filtros, escola/suporte, fila offline, regressões e build.

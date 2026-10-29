@@ -25,3 +25,14 @@ export function summarizeDashboard(rows:LoanRow[],students:StudentRow[],filter:D
   topBooks:[...bookCounts.values()].sort((a,b)=>b.total-a.total).slice(0,10),
   grades:[...gradeCounts.values()].sort((a,b)=>b.total-a.total).slice(0,10),monthly};
 }
+
+// A devolução é o critério disponível para o indicador de leitura, não uma confirmação de leitura.
+// O período continua sendo a data da retirada, inclusive para registros antigos sem data da devolução.
+export function summarizeReadingDashboard(rows:LoanRow[],students:StudentRow[],filter:DashboardFilters){
+ const summary=summarizeDashboard(rows,students,{...filter,status:'devolvidos'});
+ return {
+  metrics:{readings:summary.metrics.loans,readers:summary.metrics.students,books:summary.metrics.books},
+  timeline:summary.timeline,topReaders:summary.topStudents.map(student=>({...student,name:student.name.toLocaleUpperCase('pt-BR')})),
+  topBooks:summary.topBooks,grades:summary.grades,monthly:summary.monthly
+ };
+}

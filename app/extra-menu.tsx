@@ -11,14 +11,16 @@ function download(filename:string,body:string,type:string){const url=URL.createO
 function csv(rows:Row[],fields:string[]){const quote=(value:string)=>`"${String(value??'').replaceAll('"','""')}"`;const safe=(value:string)=>/^[\s]*[=+@-]/.test(value)?`'${value}`:value;return '\uFEFF'+[fields.map(field=>quote(labels[field]||field)).join(';'),...rows.map(row=>fields.map(field=>quote(safe(row[field]||''))).join(';'))].join('\r\n')}
 function translated(rows:Row[]){return rows.map(row=>Object.fromEntries(Object.entries(row).map(([key,value])=>[labels[key]||key,value])))}
 
-export default function ExtraMenu({books,loans,loading,onReports,onLabels}:Props){
-  const [open,setOpen]=useState(false),[section,setSection]=useState('');
+export default function ExtraMenu({books,loading,onReports,onLabels}:Props){
+  const [open,setOpen]=useState(false),[section,setSection]=useState(''),[exporting,setExporting]=useState(false),[exportError,setExportError]=useState('');
   const root=useRef<HTMLDivElement>(null);
   useEffect(()=>{if(!open)return;const outside=(event:MouseEvent)=>{if(!root.current?.contains(event.target as Node)){setOpen(false);setSection('')}};document.addEventListener('click',outside);return()=>document.removeEventListener('click',outside)},[open]);
   const close=()=>{setOpen(false);setSection('')};
-  const action=(label:string,fn:()=>void)=><button type="button" className="extra-menu-item" key={label} onClick={()=>{fn();close()}}>{label}</button>;
+  const action=(label:string,fn:()=>void|Promise<void>)=><button type="button" className="extra-menu-item" disabled={exporting} key={label} onClick={()=>{fn();close()}}>{label}</button>;
+  const completeExport=async(make:(rows:Row[])=>void)=>{if(exporting)return;setExporting(true);setExportError('');try{const response=await fetch('/api/records');const data=await response.json() as {loans:Row[];error?:string};if(!response.ok)throw Error(data.error||'Não foi possível exportar.');make(data.loans)}catch(error){setExportError((error as Error).message)}finally{setExporting(false)}};
   const exportCsv=(name:string,rows:Row[],fields:string[])=>download(`sgb-${name}.csv`,csv(rows,fields),'text/csv;charset=utf-8');
   return <div className="extra-menu" ref={root}>
+    {exporting&&<span role="status" className="extra-menu-hint">Preparando exportação…</span>}{exportError&&<span role="alert" className="error">{exportError}</span>}
     <button type="button" className="extra-menu-trigger" aria-label="Menu de Funções Extras" title="Funções extras" aria-expanded={open} aria-haspopup="menu" onClick={()=>{setOpen(value=>!value);setSection('')}}><Menu size={22}/></button>
     {open&&<div className="extra-menu-list" role="menu" aria-label="Funções extras">
       <a className="extra-menu-item" href="/aplicativo" onClick={close}>Aplicativo · instalar e usar offline</a>
@@ -26,7 +28,7 @@ export default function ExtraMenu({books,loans,loading,onReports,onLabels}:Props
         <button type="button" className={'extra-menu-item extra-menu-parent'+(section===label?' active':'')} aria-expanded={section===label} onClick={()=>setSection(label)}>{label}<ChevronRight size={15}/></button>
         {section===label&&<div className="extra-submenu" role="group" aria-label={label}>
           {label==='Relatórios'&&<>{action('Relatório de empréstimos por período',onReports)}<a className="extra-menu-item" href="/relatorio/alunos" target="_blank" rel="noopener noreferrer" onClick={close}>Gerar relatório de alunos</a></>}
-          {label==='Exportações'&&<>{loading?<span className="extra-menu-hint">Carregando os dados da escola…</span>:<>{action('Acervo · CSV',()=>exportCsv('acervo',books,['registration','title','authors','publisher','year','copies','rack','shelf']))}{action('Empréstimos · CSV',()=>exportCsv('emprestimos',loans,['student','grade','title','code','delivery','due','status']))}{action('Dados da escola · JSON',()=>download('sgb-dados.json',JSON.stringify({livros:translated(books),emprestimos:translated(loans)},null,2),'application/json;charset=utf-8'))}</>}</>}
+          {label==='Exportações'&&<>{loading?<span className="extra-menu-hint">Carregando os dados da escola…</span>:<>{action('Acervo · CSV',()=>exportCsv('acervo',books,['registration','title','authors','publisher','year','copies','rack','shelf']))}{action('Empréstimos · CSV',()=>completeExport(rows=>exportCsv('emprestimos',rows,['student','grade','title','code','delivery','due','status'])))}{action('Dados da escola · JSON',()=>completeExport(rows=>download('sgb-dados.json',JSON.stringify({livros:translated(books),emprestimos:translated(rows)},null,2),'application/json;charset=utf-8')))}</>}</>}
           {action('Etiquetas e códigos',onLabels)}
     </div>}
       </div>)}

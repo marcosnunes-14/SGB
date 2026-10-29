@@ -32,3 +32,16 @@ const migration=await readFile('drizzle/0005_remarkable_masked_marvel.sql','utf8
 assert.match(migration,/ALTER TABLE `loans` ADD `student_id` integer/);
 assert.doesNotMatch(migration,/DROP TABLE|DELETE FROM|UPDATE books/i);
 console.log('PASS: normalização exata, ranking por ID, séries, períodos, status e migração aditiva.');
+
+const reading=dashboard.summarizeReadingDashboard(rows,students,filters);
+assert.deepEqual(reading.metrics,{readings:1,readers:1,books:1});
+assert.equal(reading.topReaders[0].id,'ALU-000001');assert.equal(reading.topReaders[0].total,1);assert.equal(reading.topReaders[0].name,'MARCOS EMANUEL');
+assert.deepEqual(reading.timeline.map(day=>day.total),[0,1]);
+assert.equal(reading.topReaders.some(reader=>reader.name==='MARIA'),false);
+assert.equal(dashboard.summarizeReadingDashboard(rows,students,{...filters,start:'2026-09-27',end:'2026-09-27'}).metrics.readings,0);
+assert.equal(dashboard.summarizeReadingDashboard(rows,students,{...filters,grade:identity.studentKey('1º B')}).metrics.readings,0);
+const extraReturn={student_id:2,data:JSON.stringify({...JSON.parse(rows[2].data),status:'Devolvido'})};
+const ranked=dashboard.summarizeReadingDashboard([...rows,extraReturn,extraReturn],students,filters);
+assert.equal(ranked.topReaders[0].id,'ALU-000002');assert.equal(ranked.topReaders[0].total,2);assert.equal(ranked.metrics.readings,3);
+assert.equal(dashboard.summarizeReadingDashboard([...rows,{student_id:999,data:extraReturn.data}],students,filters).topReaders.some(reader=>reader.id==='ALU-000999'),false);
+console.log('PASS leitura: apenas devoluções entram no ranking, gráficos e indicadores; ordenação por leitor; maiúsculas; período/série; aluno sem vínculo válido não vira leitor de outra escola.');

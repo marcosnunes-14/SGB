@@ -27,7 +27,7 @@ export async function resolveStudent(owner:string,nameInput:string,gradeInput:st
   if(studentKey(nameInput)!==selected.name_key||studentKey(gradeInput)!==selected.grade_key)throw Error('Nome ou série alterados. Escolha o aluno novamente ou use como novo.');
   return selected;
  }
- const name=cleanStudentText(nameInput),grade=cleanStudentText(gradeInput),nameKey=studentKey(name),gradeKey=studentKey(grade);
+ const name=cleanStudentText(nameInput).toLocaleUpperCase('pt-BR'),grade=cleanStudentText(gradeInput),nameKey=studentKey(name),gradeKey=studentKey(grade);
  await db.prepare('INSERT OR IGNORE INTO students(owner,name,grade,name_key,grade_key) VALUES(?,?,?,?,?)').bind(owner,name,grade,nameKey,gradeKey).run();
  const row=await db.prepare('SELECT id,name,grade,name_key,grade_key FROM students WHERE owner=? AND name_key=? AND grade_key=?').bind(owner,nameKey,gradeKey).first<StudentRow>();
  if(!row)throw Error('Não foi possível identificar o aluno.');

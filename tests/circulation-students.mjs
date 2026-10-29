@@ -25,7 +25,7 @@ globalThis.__sgbDb=adapter;globalThis.__sgbUser={id:'librarian',username:'Leila'
 globalThis.__studentIdentity=identity;
 const loadRoute=async(path,extra='')=>import(compile('const getUser=async()=>globalThis.__sgbUser;const database=()=>globalThis.__sgbDb;'+extra+'\n'+readFileSync(path,'utf8').replace(/^import .*;\n/gm,'')));
 globalThis.__loanListRules=await import(compile(readFileSync('app/loan-list-rules.ts','utf8')));
-const records=await loadRoute('app/api/records/route.ts','const {normalizeOccurrence}=globalThis.__loanListRules;');
+const records=await loadRoute('app/api/records/route.ts','const {normalizeOccurrence}=globalThis.__loanListRules;const resolveStudent=(...args)=>globalThis.__resolveStudent(...args);const compareRegistrations=(a,b)=>Number(b)-Number(a);');
 const admin=await loadRoute('app/api/admin/students/route.ts','const {studentCode,studentKey}=globalThis.__studentIdentity;');
 const get=(route,path)=>route.GET(new Request('https://sgb.test'+path));
 const post=(data,origin='https://sgb.test')=>records.POST(new Request('https://sgb.test/api/records',{method:'POST',headers:{origin,'Content-Type':'application/json'},body:JSON.stringify(data)}));
@@ -78,6 +78,29 @@ const detailHistory=await (await get(records,'/api/records?loanId=loan-a')).json
 globalThis.__sgbUser.role='direcao';assert.equal((await post({action:'occurrence',id:'loan-a',occurrenceType:'Outro',note:'Sem permissão.'})).status,403);
 assert.equal(db.prepare("SELECT COUNT(*) AS n FROM audit_logs WHERE action='ocorrencia_emprestimo'").get().n,2);
 assert.deepEqual(db.prepare('SELECT * FROM books ORDER BY id').all(),booksBefore);
+
+// Mesmo recebendo caixa mista diretamente pela API, somente o nome em maiúsculas é gravado.
+globalThis.__resolveStudent=(await loadRoute('app/students-data.ts','const {cleanStudentText,studentKey}=globalThis.__studentIdentity;')).resolveStudent;
+const loanData={student:'  mÁrcos  Emanuel  ',grade:'2º A DS',code:'2',title:'Livro 2',author:'Autor',delivery:'2026-10-01',due:'2026-10-20',status:'Emprestado',studentId:String(studentA)};
+globalThis.__sgbUser.role='bibliotecario';
+assert.equal((await post({kind:'loan',data:loanData})).status,200);
+assert.equal(db.prepare("SELECT data FROM loans WHERE id NOT IN ('loan-a','loan-b','missing-book','old-returned','cross-reference','race','rollback') ORDER BY rowid DESC LIMIT 1").get().data.includes('MARCOS EMANUEL'),true);
+assert.equal(db.prepare("SELECT COUNT(*) AS n FROM students WHERE owner='a' AND name_key=?").get(identity.studentKey('Marcos Emanuel')).n,1);
+assert.equal((await post({kind:'loan',data:{...loanData,studentId:'',student:'  José  da Silva '}})).status,200);
+assert.equal(db.prepare("SELECT name FROM students WHERE owner='a' AND name_key=?").get(identity.studentKey('José da Silva')).name,'JOSÉ DA SILVA');
+const pendingOnly=await (await get(records,'/api/records?pending=1')).json();
+assert.ok(pendingOnly.loans.every(loan=>loan.status!=='Devolvido'));
+assert.ok((await (await get(records,'/api/records')).json()).loans.some(loan=>loan.id==='loan-a'&&loan.status==='Devolvido'));
+const dash=await import(compile('const {studentKey,studentCode}=globalThis.__studentIdentity;'+readFileSync('app/dashboard-data.ts','utf8').replace(/^import .*;\n/gm,'')));
+globalThis.__readingDashboard=dash;
+const dashboardRoute=await loadRoute('app/api/dashboard/route.ts','const associateLegacyLoans=async()=>{};const {studentKey}=globalThis.__studentIdentity;const {summarizeReadingDashboard}=globalThis.__readingDashboard;');
+const realStats=await (await get(dashboardRoute,'/api/dashboard?start=2026-01-01&end=2026-12-31')).json();
+assert.ok(realStats.topReaders.some(reader=>reader.id===identity.studentCode(studentA)));
+assert.ok(realStats.topReaders.every(reader=>reader.id!==identity.studentCode(studentB)));
+globalThis.__sgbUser={id:'dev',username:'Marcos',role:'desenvolvedor',institutionId:'b',userId:'b',supportMode:true};
+const foreignStats=await (await get(dashboardRoute,'/api/dashboard?start=2026-01-01&end=2026-12-31')).json();
+assert.equal(foreignStats.metrics.readings,0);assert.equal(foreignStats.topReaders.length,0);
+console.log('PASS: pendentes carregados sem histórico; exportação mantém dados; nomes novos em maiúsculas sem duplicar aluno legado; Dashboard por escola e suporte.');
 globalThis.__sgbUser=null;assert.equal((await get(admin,'/api/admin/students?institutionId=a')).status,401);assert.equal((await get(records,'/api/records?loanId=loan-a')).status,401);
 const release=await import(compile(readFileSync('app/update-release.ts','utf8'))),values=new Map(),storage={getItem:key=>values.get(key),setItem:(key,value)=>values.set(key,value)};
 assert.equal(release.claimUpdateNotice(storage,'librarian'),true);assert.equal(release.claimUpdateNotice(storage,'librarian'),false);assert.equal(release.claimUpdateNotice(storage,'dev'),true);

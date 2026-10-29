@@ -2,7 +2,7 @@ import {applyOperation,bases,emptySnapshot,type Operation,type Profile,type Snap
 import {listProfiles,deriveKey,seal,unseal,saveEnvelope,newSalt,type Envelope,type Vault} from './vault';
 import {compareRegistrations} from '../registration-order';
 import {studentKey,studentCode} from '../student-identity';
-import {summarizeDashboard} from '../dashboard-data';
+import {summarizeReadingDashboard} from '../dashboard-data';
 export type Status={pending:number;expired:boolean;online:boolean;syncing:boolean;message:string;conflict:boolean;syncedAt:string};
 export class OfflineClient{
  vault:Vault;private key:CryptoKey;private envelope:Envelope;private nativeFetch:typeof fetch;private writing:Promise<unknown>=Promise.resolve();private syncing=false;private stopped=false;private listeners=new Set<()=>void>();private timer:ReturnType<typeof setTimeout>|undefined;online=navigator.onLine;message='';
@@ -56,13 +56,13 @@ export class OfflineClient{
    if(url.pathname==='/api/records'){
     if(method==='POST')return result(await this.mutate(JSON.parse(String(init?.body||'{}'))));
     const id=url.searchParams.get('loanId');if(id){const loan=state.loans.find(r=>r.id===id);if(!loan)return result({error:'Empréstimo não encontrado.'},404);const book=state.books.find(b=>b.registration===String(loan.code||'').trim());return result({loan,location:book?{rack:book.rack,shelf:book.shelf}:null})}
-    return result({books:[...state.books].sort((a,b)=>compareRegistrations(String(a.registration),String(b.registration))),loans:[...state.loans]});
+    return result({books:[...state.books].sort((a,b)=>compareRegistrations(String(a.registration),String(b.registration))),loans:state.loans.filter(loan=>url.searchParams.get('pending')!=='1'||loan.status!=='Devolvido')});
    }
    if(url.pathname==='/api/students'){
     const q=studentKey(url.searchParams.get('q')||'');return result({students:state.students.filter(s=>q.length>=2&&studentKey(s.name).startsWith(q)).slice(0,8).map(s=>({id:String(s.id),code:s.id>0?studentCode(s.id):'Aguardando sincronização',name:s.name,grade:s.grade,loansCount:state.loans.filter(l=>Number(l.studentId)===s.id).length}))});
    }
    if(url.pathname==='/api/dashboard'){
-    const p=url.searchParams,summary=summarizeDashboard(state.loans.map(l=>({student_id:Number(l.studentId)||null,data:JSON.stringify(l)})),state.students,{start:p.get('start')||'',end:p.get('end')||'',today:p.get('today')||new Date().toLocaleDateString('sv-SE'),status:p.get('status')||'todos',grade:studentKey(p.get('grade')||'')});return result({...summary,topStudents:summary.topStudents.map(s=>({...s,id:/^ALU-0*-/.test(s.id)?'Local-'+s.id.split('-').at(-1):s.id})),availableGrades:[...new Set(state.students.map(s=>s.grade))]});
+    const p=url.searchParams,summary=summarizeReadingDashboard(state.loans.map(l=>({student_id:Number(l.studentId)||null,data:JSON.stringify(l)})),state.students,{start:p.get('start')||'',end:p.get('end')||'',today:p.get('today')||new Date().toLocaleDateString('sv-SE'),status:p.get('status')||'todos',grade:studentKey(p.get('grade')||'')});return result({...summary,topReaders:summary.topReaders.map(s=>({...s,id:/^ALU-0*-/.test(s.id)?'Local-'+s.id.split('-').at(-1):s.id})),availableGrades:[...new Set(state.students.map(s=>s.grade))]});
    }
    if(url.pathname==='/api/labels'){
     if(method==='POST'){const body=JSON.parse(String(init?.body||'{}'));return result(await this.mutate({...body,action:'label-print'}))}

@@ -69,9 +69,9 @@ export function applyOperation(original:Snapshot,op:Operation,user:Profile):Snap
   if(!input.student?.trim()||!input.grade?.trim()||!input.code?.trim()||!input.title?.trim()||!input.author?.trim()||!validDate(input.delivery)||!validDate(input.due)||input.due<input.delivery||!['Emprestado','Devolvido'].includes(input.status))throw Error('Confira os dados e datas do empréstimo.');
   let student=state.students.find(s=>studentKey(s.name)===studentKey(input.student)&&studentKey(s.grade)===studentKey(input.grade));
   if(input.studentId&&Number(input.studentId)>0&&!state.students.some(s=>String(s.id)===input.studentId&&studentKey(s.name)===studentKey(input.student)&&studentKey(s.grade)===studentKey(input.grade)))throw Error('Aluno selecionado não pertence a esta escola ou foi alterado.');
-  if(!student){student={id:Math.min(0,...state.students.map(s=>s.id))-1,name:cleanStudentText(input.student),grade:cleanStudentText(input.grade),created_at:op.at};state.students.push(student)}
+  if(!student){student={id:Math.min(0,...state.students.map(s=>s.id))-1,name:cleanStudentText(input.student).toLocaleUpperCase('pt-BR'),grade:cleanStudentText(input.grade),created_at:op.at};state.students.push(student)}
   const fields=['student','grade','code','title','author','delivery','due','status'];
-  const loan:Row={...Object.fromEntries(fields.map(key=>[key,input[key]])),id:op.id,student:student.name,grade:student.grade,code:input.code.trim(),studentId:student.id};state.loans.unshift(loan);return state;
+  const loan:Row={...Object.fromEntries(fields.map(key=>[key,input[key]])),id:op.id,student:student.name.toLocaleUpperCase('pt-BR'),grade:student.grade,code:input.code.trim(),studentId:student.id};state.loans.unshift(loan);return state;
  }
  throw Error('Esta operação exige acesso ao site com internet.');
 }

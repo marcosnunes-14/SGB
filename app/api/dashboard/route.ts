@@ -2,7 +2,7 @@ import {getUser} from '../../auth';
 import {database} from '@/db/raw';
 import {associateLegacyLoans} from '../../students-data';
 import {studentKey} from '../../student-identity';
-import {summarizeDashboard} from '../../dashboard-data';
+import {summarizeReadingDashboard} from '../../dashboard-data';
 
 export const dynamic='force-dynamic';
 export async function GET(req:Request){
@@ -14,10 +14,10 @@ export async function GET(req:Request){
  try{
   await associateLegacyLoans(user.userId);
   const db=database();const [loans,students]=await Promise.all([
-   db.prepare("SELECT student_id,data FROM loans WHERE owner=? AND json_extract(data,'$.delivery')>=? AND json_extract(data,'$.delivery')<=?").bind(user.userId,start,end).all<{student_id:number|null;data:string}>(),
+   db.prepare("SELECT student_id,data FROM loans WHERE owner=? AND json_extract(data,'$.status')='Devolvido' AND json_extract(data,'$.delivery')>=? AND json_extract(data,'$.delivery')<=?").bind(user.userId,start,end).all<{student_id:number|null;data:string}>(),
    db.prepare('SELECT id,name,grade,grade_key FROM students WHERE owner=? ORDER BY name').bind(user.userId).all<{id:number;name:string;grade:string;grade_key:string}>()
   ]);
-  const grade=params.get('grade')||'';const summary=summarizeDashboard(loans.results,students.results,{start,end,today,status,grade:studentKey(grade)});
+  const grade=params.get('grade')||'';const summary=summarizeReadingDashboard(loans.results,students.results,{start,end,today,status,grade:studentKey(grade)});
   return Response.json({...summary,availableGrades:[...new Set(students.results.map(s=>s.grade))].sort((a,b)=>a.localeCompare(b,'pt-BR'))},{headers:{'Cache-Control':'no-store'}});
  }catch(e){console.error('Dashboard failed',e);return Response.json({error:'Não foi possível carregar o Dashboard.'},{status:503})}
 }
