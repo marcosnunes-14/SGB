@@ -1133,3 +1133,10 @@ Validação: `tests/offline-sync.mjs` (SQL real, transações, alunos, 100 clone
 - Site carrega /api/records?pending=1, filtrando no D1 antes de enviar os dados. O adaptador offline respeita o mesmo parâmetro. Relatórios/estatísticas preservam o histórico; CSV/JSON solicitam os dados completos somente ao exportar.
 - Nome do aluno é convertido em maiúsculas na digitação e no autocomplete; API e modelo offline também gravam o nome do novo empréstimo em maiúsculas, inclusive ao selecionar um cadastro antigo. Novos alunos são criados em maiúsculas; a chave normalizada e o ID antigo são preservados, sem conversão em massa.
 - Sem migrations, exclusões ou acesso ao D1 de produção. Testes locais cobrem nomes e vínculos, lista de pendentes, ranking real por devoluções, filtros, escola/suporte, fila offline, regressões e build.
+
+
+## 46. Gráfico dos leitores — 29/10/2026
+
+- Bloco Alunos que mais leram livros agora apresenta barras horizontais por aluno, quantidade ao lado de cada barra e detalhes de nome/turma ao passar o cursor.
+- Mesmo top 10 por ID, escola e filtros da API de leitura. Nomes longos abreviados no eixo, completos no tooltip e em Ver nomes e turmas. Lista recolhida para manter o Dashboard compacto.
+- Nenhuma alteração no banco. Verificação de tipos, build, ranking e gráfico no navegador em notebook e tela estreita.
